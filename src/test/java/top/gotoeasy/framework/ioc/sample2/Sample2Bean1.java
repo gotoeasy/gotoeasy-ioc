@@ -9,11 +9,11 @@ public class Sample2Bean1 {
     @Autowired
     private Sample2Bean2 sample2Bean2;
 
-    public Sample2Bean2 getSample1Bean2() {
+    public Sample2Bean2 getSample2Bean2() {
         return sample2Bean2;
     }
 
-    public void setSample1Bean2(Sample2Bean2 sample2Bean2) {
+    public void setSample2Bean2(Sample2Bean2 sample2Bean2) {
         this.sample2Bean2 = sample2Bean2;
     }
 

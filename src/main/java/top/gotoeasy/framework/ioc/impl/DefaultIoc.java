@@ -1,6 +1,7 @@
 package top.gotoeasy.framework.ioc.impl;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class DefaultIoc extends BaseIoc {
 
         // 注入
         for ( Object bean : mapIoc.values() ) {
-            initInjectObject(bean);
+            injectObject(bean);
         }
 
     }
@@ -55,7 +56,8 @@ public class DefaultIoc extends BaseIoc {
      * 
      * @param bean 待注入处理的Bean对象
      */
-    private void initInjectObject(Object bean) {
+    private void injectObject(Object bean) {
+        // 字段注入
         Field[] fields = bean.getClass().getDeclaredFields();
         Object val;
         for ( Field field : fields ) {
@@ -70,6 +72,27 @@ public class DefaultIoc extends BaseIoc {
                     field.set(bean, val);
                 } catch (Exception e) {
                     throw new IocException("字段注入失败:" + field, e);
+                }
+            }
+        }
+
+        // 方法注入
+        Method[] methods = bean.getClass().getDeclaredMethods();
+        for ( Method method : methods ) {
+            if ( method.isAnnotationPresent(Autowired.class) ) {
+                Class<?>[] classes = method.getParameterTypes();
+                Object[] args = new Object[classes.length];
+                for ( int i = 0; i < args.length; i++ ) {
+                    args[i] = mapIoc.get(beanNameStrategy.getName(classes[i]));
+                    if ( args[i] == null ) {
+                        log.warn("方法第{}参数注入值为null：{}", i, method);
+                    }
+
+                    try {
+                        method.invoke(bean, args);
+                    } catch (Exception e) {
+                        throw new IocException("方法注入失败:" + method, e);
+                    }
                 }
             }
         }

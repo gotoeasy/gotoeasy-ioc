@@ -18,7 +18,7 @@ public class Sample2Main {
         Sample2Bean1 bean = ioc.getBean(Sample2Bean1.class);
 
         log.debug("Sample2Bean1: {}", bean);
-        log.debug("Sample2Bean1.getSample2Bean2(): {}", bean.getSample1Bean2());
+        log.debug("Sample2Bean1.getSample2Bean2(): {}", bean.getSample2Bean2());
         log.debug("Sample2Aop.getBean().hello(\"world\"): {}", ioc.getBean(Sample2Aop.class).getBean().hello("world"));
     }
 }
