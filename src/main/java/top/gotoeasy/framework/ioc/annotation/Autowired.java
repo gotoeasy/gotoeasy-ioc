@@ -17,6 +17,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.PARAMETER})
 public @interface Autowired {
 
-    /** 自动注入的Bean名称 （默认按命名策略确定，需自定义时设定） */
+    /**
+     * 自动注入的Bean名称 （默认按命名策略确定，需自定义时设定）
+     * 
+     * @return Bean名称
+     */
     String value() default "";
 }

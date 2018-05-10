@@ -18,9 +18,11 @@ public interface Ioc {
 
     /**
      * 按类取得对象
-     * <p/>
+     * <p>
      * 名称由类名按策略取得
+     * </p>
      * 
+     * @param <T> 类
      * @param claz 指定类
      * @return 对象
      */
@@ -29,6 +31,7 @@ public interface Ioc {
     /**
      * 按名称取得并转换成指定类对象
      * 
+     * @param <T> 类
      * @param name 名称
      * @param claz 指定类
      * @return 对象
