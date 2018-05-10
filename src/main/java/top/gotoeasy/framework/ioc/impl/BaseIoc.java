@@ -60,8 +60,9 @@ public class BaseIoc implements Ioc {
 
     /**
      * 按类取得对象
-     * <p/>
+     * <p>
      * 名称由类名按策略取得
+     * </p>
      * 
      * @param <T> 类
      * @param clas 指定类
