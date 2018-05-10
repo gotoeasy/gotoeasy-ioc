@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import top.gotoeasy.framework.core.log.Log;
 import top.gotoeasy.framework.core.log.LoggerFactory;
 import top.gotoeasy.framework.ioc.Ioc;
-import top.gotoeasy.framework.ioc.exception.IocException;
 import top.gotoeasy.framework.ioc.strategy.BeanNameStrategy;
 
 /**
@@ -31,10 +30,6 @@ public class BaseIoc implements Ioc {
      * @param bean 对象
      */
     public void put(String name, Object bean) {
-        if ( mapIoc.containsKey(name) ) {
-            log.error("Bean名重复，Bean设定失败 {}：{}", name, bean);
-            throw new IocException("Bean名重复：" + name);
-        }
         mapIoc.put(name, bean);
         log.debug("IOC添加对象[{}:{}]", name, bean);
     }

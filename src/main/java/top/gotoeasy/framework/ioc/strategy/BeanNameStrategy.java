@@ -1,6 +1,5 @@
 package top.gotoeasy.framework.ioc.strategy;
 
-import top.gotoeasy.framework.aop.Enhance;
 import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.core.util.CmnString;
 import top.gotoeasy.framework.ioc.annotation.Component;
@@ -20,23 +19,18 @@ public interface BeanNameStrategy {
      * @return Bean名称
      */
     public default String getName(Class<?> clas) {
-        Class<?> cls = clas;
-        if ( Enhance.class.isAssignableFrom(cls) ) {
-            // 增强类时，取父类
-            cls = clas.getSuperclass();
-        }
 
         String name;
-        if ( cls.isAnnotationPresent(Component.class) ) {
-            Component component = cls.getAnnotation(Component.class);
+        if ( clas.isAnnotationPresent(Component.class) ) {
+            Component component = clas.getAnnotation(Component.class);
             name = component.value();
         } else {
-            Aop aop = cls.getAnnotation(Aop.class);
+            Aop aop = clas.getAnnotation(Aop.class);
             name = aop.value();
         }
 
         if ( CmnString.isBlank(name) ) {
-            return CmnString.uncapitalize(cls.getSimpleName());
+            return CmnString.uncapitalize(clas.getSimpleName());
         }
 
         return name;

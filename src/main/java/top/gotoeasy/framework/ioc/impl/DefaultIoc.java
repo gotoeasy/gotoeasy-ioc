@@ -165,17 +165,21 @@ public class DefaultIoc extends BaseIoc {
     private void injectByField(Object bean) {
 
         Field[] fields = bean.getClass().getDeclaredFields();
-        Object val;
         for ( Field field : fields ) {
             if ( field.isAnnotationPresent(Autowired.class) ) {
-                val = mapIoc.get(beanNameStrategy.getName(field.getType()));
-                if ( val == null ) {
-                    log.warn("字段注入值为null：{}", field);
+                Autowired anno = field.getAnnotation(Autowired.class);
+                String refName = anno.value();
+                if ( CmnString.isBlank(refName) ) {
+                    refName = beanNameStrategy.getName(field.getType());
+                }
+
+                if ( !super.mapIoc.containsKey(refName) ) {
+                    throw new IocException("找不到指定名称的Bean对象:" + refName);
                 }
 
                 field.setAccessible(true);
                 try {
-                    field.set(bean, val);
+                    field.set(bean, super.getBean(refName));
                 } catch (Exception e) {
                     throw new IocException("字段注入失败:" + field, e);
                 }
@@ -193,22 +197,36 @@ public class DefaultIoc extends BaseIoc {
         Method[] methods = bean.getClass().getDeclaredMethods();
         for ( Method method : methods ) {
             if ( method.isAnnotationPresent(Autowired.class) ) {
-                Class<?>[] classes = method.getParameterTypes();
-                Object[] args = new Object[classes.length];
-                for ( int i = 0; i < args.length; i++ ) {
-                    args[i] = mapIoc.get(beanNameStrategy.getName(classes[i]));
-                    if ( args[i] == null ) {
-                        log.warn("方法第{}参数注入值为null：{}", i, method);
-                    }
-
-                    try {
-                        method.invoke(bean, args);
-                    } catch (Exception e) {
-                        throw new IocException("方法注入失败:" + method, e);
-                    }
+                Object[] args = getInjectMethodArgs(method);
+                try {
+                    method.invoke(bean, args);
+                } catch (Exception e) {
+                    throw new IocException("方法注入失败:" + method, e);
                 }
             }
         }
+    }
+
+    private Object[] getInjectMethodArgs(Method method) {
+        Parameter[] parameters = method.getParameters();
+        Object[] args = new Object[parameters.length];
+        for ( int i = 0; i < args.length; i++ ) {
+            String refName = null;
+            if ( parameters[i].isAnnotationPresent(Autowired.class) ) {
+                refName = parameters[i].getAnnotation(Autowired.class).value();
+            }
+
+            if ( CmnString.isBlank(refName) ) {
+                refName = beanNameStrategy.getName(parameters[i].getType());
+            }
+
+            if ( !super.mapIoc.containsKey(refName) ) {
+                throw new IocException("找不到指定名称的Bean对象:" + refName);
+            }
+            args[i] = super.getBean(refName);
+        }
+
+        return args;
     }
 
     /**
