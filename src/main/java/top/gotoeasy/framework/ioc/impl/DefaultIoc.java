@@ -60,6 +60,12 @@ public class DefaultIoc extends BaseIoc {
 
     }
 
+    /**
+     * 初始化全部Bean
+     * 
+     * @param map Bean定义Map
+     * @param aopList AOP拦截处理类对象列表
+     */
     private void initComponentBeans(Map<String, BeanDefine> map, List<Object> aopList) {
 
         Iterator<Entry<String, BeanDefine>> it = map.entrySet().iterator();
@@ -75,6 +81,14 @@ public class DefaultIoc extends BaseIoc {
 
     }
 
+    /**
+     * 初始化一个Bean
+     * 
+     * @param map Bean定义Map
+     * @param name Bean名称
+     * @param aopList AOP拦截处理类对象列表
+     * @return Bean对象
+     */
     private Object initComponentBean(Map<String, BeanDefine> map, String name, List<Object> aopList) {
         if ( super.mapIoc.containsKey(name) ) {
             return super.getBean(name);
@@ -89,6 +103,13 @@ public class DefaultIoc extends BaseIoc {
         return bean;
     }
 
+    /**
+     * 构造方法的参数初始化
+     * 
+     * @param beanDefine Bean定义
+     * @param map Bean定义Map
+     * @param aopList AOP拦截处理类对象列表
+     */
     private void getAndSetInitargs(BeanDefine beanDefine, Map<String, BeanDefine> map, List<Object> aopList) {
         if ( beanDefine.constructor == null ) {
             return;
@@ -124,6 +145,12 @@ public class DefaultIoc extends BaseIoc {
 
     }
 
+    /**
+     * AOP拦截处理类对象优先生成
+     * 
+     * @param map Bean定义Map
+     * @return AOP拦截处理类对象列表
+     */
     private List<Object> initAopBeans(Map<String, BeanDefine> map) {
         List<Object> list = new ArrayList<>();
 
@@ -207,6 +234,12 @@ public class DefaultIoc extends BaseIoc {
         }
     }
 
+    /**
+     * 取得方法参数
+     * 
+     * @param method 方法
+     * @return 方法参数
+     */
     private Object[] getInjectMethodArgs(Method method) {
         Parameter[] parameters = method.getParameters();
         Object[] args = new Object[parameters.length];
@@ -252,6 +285,12 @@ public class DefaultIoc extends BaseIoc {
         return map;
     }
 
+    /**
+     * 取得注解方式的Bean定义
+     * 
+     * @param clas 类
+     * @return Bean定义
+     */
     private BeanDefine getBeanDefine(Class<?> clas) {
         BeanDefine beanDefine = new BeanDefine();
         beanDefine.name = beanNameStrategy.getName(clas);
@@ -260,6 +299,12 @@ public class DefaultIoc extends BaseIoc {
         return beanDefine;
     }
 
+    /**
+     * 取得自动注入的构造方法
+     * 
+     * @param clas 类
+     * @return 自动注入的构造方法（null或唯一的一个）
+     */
     private Constructor<?> getAutowiredConstructor(Class<?> clas) {
         Constructor<?>[] constructors = clas.getConstructors();
         int cnt = 0;

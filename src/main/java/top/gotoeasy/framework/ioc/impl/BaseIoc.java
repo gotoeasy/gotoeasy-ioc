@@ -48,6 +48,7 @@ public class BaseIoc implements Ioc {
     /**
      * 按名称取Bean对象并自动转换
      * 
+     * @param <T> 类
      * @param name 名称
      * @return Bean对象
      */
@@ -62,6 +63,7 @@ public class BaseIoc implements Ioc {
      * <p/>
      * 名称由类名按策略取得
      * 
+     * @param <T> 类
      * @param clas 指定类
      * @return 对象
      */
