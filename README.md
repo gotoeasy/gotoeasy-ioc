@@ -1,5 +1,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/cf34c42bcb7344cf98e42195a1e530a1)](https://www.codacy.com/app/gotoeasy/gotoeasy-ioc?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gotoeasy/gotoeasy-ioc&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/cf34c42bcb7344cf98e42195a1e530a1)](https://www.codacy.com/app/gotoeasy/gotoeasy-ioc?utm_source=github.com&utm_medium=referral&utm_content=gotoeasy/gotoeasy-ioc&utm_campaign=Badge_Coverage)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-ioc/badge.svg)](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-ioc)
+[![Javadocs](https://www.javadoc.io/badge/top.gotoeasy/gotoeasy-ioc.svg)](https://www.javadoc.io/doc/top.gotoeasy/gotoeasy-ioc)
 
 
 # `gotoeasy-ioc`
