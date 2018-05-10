@@ -112,6 +112,12 @@ public class DefaultIoc extends BaseIoc {
                 if ( !map.containsKey(paramBeanName) ) {
                     throw new IocException("找不到名称为[" + paramBeanName + "]的Bean定义");
                 }
+
+                if ( beanDefine.creatting ) {
+                    throw new IocException("循环依赖导致初始化失败：" + paramBeanName);
+                }
+
+                beanDefine.creatting = true;
                 beanDefine.initargs[i] = initComponentBean(map, paramBeanName, aopList);
             }
         }
@@ -280,6 +286,8 @@ public class DefaultIoc extends BaseIoc {
         private Class<?>       clas;
         private Constructor<?> constructor;
         private Object[]       initargs;
+
+        private boolean        creatting;
     }
 
 }
