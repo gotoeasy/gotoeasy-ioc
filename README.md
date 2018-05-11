@@ -18,7 +18,7 @@ Maven使用
 ```
 
 Gradle使用
-```
+```gradle
 compile group: 'top.gotoeasy', name: 'gotoeasy-ioc', version: 'x.y.z'
 ```
 
