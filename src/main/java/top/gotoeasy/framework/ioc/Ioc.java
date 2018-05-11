@@ -23,19 +23,19 @@ public interface Ioc {
      * </p>
      * 
      * @param <T> 类
-     * @param claz 指定类
+     * @param clas 指定类
      * @return 对象
      */
-    public <T> T getBean(Class<T> claz);
+    public <T> T getBean(Class<T> clas);
 
     /**
      * 按名称取得并转换成指定类对象
      * 
      * @param <T> 类
      * @param name 名称
-     * @param claz 指定类
+     * @param clas 指定类
      * @return 对象
      */
-    public <T> T getBean(String name, Class<T> claz);
+    public <T> T getBean(String name, Class<T> clas);
 
 }
