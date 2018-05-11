@@ -13,7 +13,7 @@ public class Sample94Aop {
         log.debug("Sample94Aop");
     }
 
-    public String hello(String name) {
+    public static String hello(String name) {
         return "Hello " + name;
     }
 }
