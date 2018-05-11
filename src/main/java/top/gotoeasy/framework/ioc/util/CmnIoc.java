@@ -13,6 +13,9 @@ public class CmnIoc {
 
     private static final Ioc ioc = new DefaultIoc();
 
+    private CmnIoc() {
+    }
+
     /**
      * 按名称取得对象
      * 
@@ -33,7 +36,7 @@ public class CmnIoc {
      * @param clas 指定类
      * @return 对象
      */
-    public <T> T getBean(Class<T> clas) {
+    public static <T> T getBean(Class<T> clas) {
         return ioc.getBean(clas);
     }
 
@@ -45,7 +48,7 @@ public class CmnIoc {
      * @param clas 指定类
      * @return 对象
      */
-    public <T> T getBean(String name, Class<T> clas) {
+    public static <T> T getBean(String name, Class<T> clas) {
         return ioc.getBean(name, clas);
     }
 
