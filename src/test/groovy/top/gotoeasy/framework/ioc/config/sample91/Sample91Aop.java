@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.ioc.sample91;
+package top.gotoeasy.framework.ioc.config.sample91;
 
 import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.aop.annotation.Before;

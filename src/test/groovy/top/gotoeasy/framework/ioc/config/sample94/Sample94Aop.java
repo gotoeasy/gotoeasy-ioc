@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.ioc.sample94;
+package top.gotoeasy.framework.ioc.config.sample94;
 
 import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.core.log.Log;
