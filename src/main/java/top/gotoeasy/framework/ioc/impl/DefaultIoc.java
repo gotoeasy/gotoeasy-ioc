@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import top.gotoeasy.framework.aop.Enhance;
 import top.gotoeasy.framework.aop.EnhanceBuilder;
 import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.core.config.DefaultConfig;
@@ -191,7 +192,12 @@ public class DefaultIoc extends BaseIoc {
      */
     private void injectByField(Object bean) {
 
-        Field[] fields = bean.getClass().getDeclaredFields();
+        Class<?> targetClass = bean.getClass();
+        while ( Enhance.class.isAssignableFrom(targetClass) ) {
+            targetClass = targetClass.getSuperclass();
+        }
+
+        Field[] fields = targetClass.getDeclaredFields();
         for ( Field field : fields ) {
             if ( field.isAnnotationPresent(Autowired.class) ) {
                 Autowired anno = field.getAnnotation(Autowired.class);
@@ -221,7 +227,12 @@ public class DefaultIoc extends BaseIoc {
      */
     private void injectByMethod(Object bean) {
 
-        Method[] methods = bean.getClass().getDeclaredMethods();
+        Class<?> targetClass = bean.getClass();
+        while ( Enhance.class.isAssignableFrom(targetClass) ) {
+            targetClass = targetClass.getSuperclass();
+        }
+
+        Method[] methods = targetClass.getDeclaredMethods();
         for ( Method method : methods ) {
             if ( method.isAnnotationPresent(Autowired.class) ) {
                 Object[] args = getInjectMethodArgs(method);

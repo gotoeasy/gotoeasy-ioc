@@ -20,11 +20,11 @@ public interface BeanNameStrategy {
      */
     public default String getName(Class<?> clas) {
 
-        String name;
+        String name = null;
         if ( clas.isAnnotationPresent(Component.class) ) {
             Component component = clas.getAnnotation(Component.class);
             name = component.value();
-        } else {
+        } else if ( clas.isAnnotationPresent(Aop.class) ) {
             Aop aop = clas.getAnnotation(Aop.class);
             name = aop.value();
         }
