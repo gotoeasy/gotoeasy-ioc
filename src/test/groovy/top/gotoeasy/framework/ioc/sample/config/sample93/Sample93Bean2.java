@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.ioc.config.sample93;
+package top.gotoeasy.framework.ioc.sample.config.sample93;
 
 import top.gotoeasy.framework.ioc.annotation.Component;
 

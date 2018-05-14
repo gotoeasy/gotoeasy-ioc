@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.ioc
+package top.gotoeasy.framework.ioc.sample
 
 import static org.junit.Assert.*
 
@@ -16,7 +16,6 @@ import top.gotoeasy.framework.ioc.sample3.Sample3Aop
 import top.gotoeasy.framework.ioc.sample3.Sample3Bean1
 import top.gotoeasy.framework.ioc.sample4.Sample4Bean1
 import top.gotoeasy.framework.ioc.util.CmnIoc
-
 
 class DefaultIocTest extends Specification {
 
@@ -71,7 +70,7 @@ class DefaultIocTest extends Specification {
     @Test
     public void "91循环依赖异常"() {
         expect:
-        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.config.sample91");
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.sample.config.sample91");
         when:
         DefaultIoc ioc = new DefaultIoc();
         then:
@@ -82,7 +81,7 @@ class DefaultIocTest extends Specification {
     @Test
     public void "92Bean名重复"() {
         expect:
-        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.config.sample92");
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.sample.config.sample92");
         when:
         DefaultIoc ioc = new DefaultIoc();
         then:
@@ -93,7 +92,7 @@ class DefaultIocTest extends Specification {
     @Test
     public void "93构造方法重复注入"() {
         expect:
-        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.config.sample93");
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.sample.config.sample93");
         when:
         DefaultIoc ioc = new DefaultIoc();
         then:
@@ -104,7 +103,7 @@ class DefaultIocTest extends Specification {
     @Test
     public void "94按默认构造方法创建失败"() {
         expect:
-        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.config.sample94");
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.sample.config.sample94");
         when:
         DefaultIoc ioc = new DefaultIoc();
         then:
@@ -115,7 +114,7 @@ class DefaultIocTest extends Specification {
     @Test
     public void "95字段注入，找不到指定名称的Bean对象"() {
         expect:
-        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.config.sample95");
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.sample.config.sample95");
         when:
         DefaultIoc ioc = new DefaultIoc();
         then:
@@ -126,7 +125,7 @@ class DefaultIocTest extends Specification {
     @Test
     public void "96方法注入，找不到指定名称的Bean对象"() {
         expect:
-        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.config.sample96");
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.sample.config.sample96");
         when:
         DefaultIoc ioc = new DefaultIoc();
         then:
@@ -137,7 +136,7 @@ class DefaultIocTest extends Specification {
     @Test
     public void "97方法注入失败"() {
         expect:
-        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.config.sample97");
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.sample.config.sample97");
         when:
         DefaultIoc ioc = new DefaultIoc();
         then:
@@ -148,7 +147,7 @@ class DefaultIocTest extends Specification {
     @Test
     public void "98字段注入失败"() {
         expect:
-        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.config.sample98");
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.sample.config.sample98");
         when:
         DefaultIoc ioc = new DefaultIoc();
         then:
@@ -159,7 +158,7 @@ class DefaultIocTest extends Specification {
     @Test
     public void "99构造方法注入，找不到指定名称的Bean定义"() {
         expect:
-        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.config.sample99");
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.sample.config.sample99");
         when:
         DefaultIoc ioc = new DefaultIoc();
         then:
@@ -171,7 +170,6 @@ class DefaultIocTest extends Specification {
     public void "100 CmnIoc测试"() {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.sample1");
-        DefaultIoc ioc = new DefaultIoc();
 
         CmnIoc.getBean("sample1Bean1") != null
         CmnIoc.getBean("sample1Bean1", Sample1Bean1.class) != null
