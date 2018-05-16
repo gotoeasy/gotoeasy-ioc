@@ -34,9 +34,10 @@
 							<xs:element name="property" minOccurs="0"
 								maxOccurs="unbounded">
 								<xs:complexType>
-									<!-- 用于注入的property标签，name必须设定，value、ref两者必选一个进行设定 -->
+									<!-- 用于注入的property标签，name必须设定，class+value、ref两者必选一个进行设定 -->
 									<xs:attribute name="name" type="xs:string"
 										use="required" />
+									<xs:attribute name="class" type="xs:string" />
 									<xs:attribute name="value" type="xs:string" />
 									<xs:attribute name="ref" type="xs:string" />
 								</xs:complexType>

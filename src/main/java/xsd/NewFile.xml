@@ -15,13 +15,15 @@
 	<!-- 按默认构造方法创建Bean，按指定属性注入 -->
 	<bean id="lisi" class="top.gotoeasy.sample.Student">
 		<property name="age" ref="age" />
-		<property name="phone" value="13812345678" />
+		<!-- 简单类型的属性可以直接设定值 -->
+		<property name="phone" class="String" value="13812345678" />
 	</bean>
 
 	<!-- 按指定构造方法创建Bean -->
 	<bean id="wangwu" class="top.gotoeasy.sample.Student">
 		<constructor>
 			<arg ref="age" />
+			<!-- 简单类型的属性可以直接设定值 -->
 			<arg class="String" value="13812345678" />
 		</constructor>
 	</bean>

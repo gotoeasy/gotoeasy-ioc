@@ -2,6 +2,7 @@
 // 此文件是由 JavaTM Architecture for XML Binding (JAXB) 引用实现 v2.2.8-b130911.1802 生成的
 // 请访问 <a href="http://java.sun.com/xml/jaxb">http://java.sun.com/xml/jaxb</a>
 // 在重新编译源模式时, 对此文件的所有修改都将丢失。
+// 生成时间: 2018.05
 //
 
 package top.gotoeasy.framework.ioc.xml;
@@ -57,6 +58,7 @@ import javax.xml.bind.annotation.XmlType;
  *                       &lt;complexContent>
  *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *                           &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *                           &lt;attribute name="class" type="{http://www.w3.org/2001/XMLSchema}string" />
  *                           &lt;attribute name="value" type="{http://www.w3.org/2001/XMLSchema}string" />
  *                           &lt;attribute name="ref" type="{http://www.w3.org/2001/XMLSchema}string" />
  *                         &lt;/restriction>
@@ -146,6 +148,7 @@ public class Beans {
      *             &lt;complexContent>
      *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
      *                 &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+     *                 &lt;attribute name="class" type="{http://www.w3.org/2001/XMLSchema}string" />
      *                 &lt;attribute name="value" type="{http://www.w3.org/2001/XMLSchema}string" />
      *                 &lt;attribute name="ref" type="{http://www.w3.org/2001/XMLSchema}string" />
      *               &lt;/restriction>
@@ -479,6 +482,7 @@ public class Beans {
          *   &lt;complexContent>
          *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
          *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+         *       &lt;attribute name="class" type="{http://www.w3.org/2001/XMLSchema}string" />
          *       &lt;attribute name="value" type="{http://www.w3.org/2001/XMLSchema}string" />
          *       &lt;attribute name="ref" type="{http://www.w3.org/2001/XMLSchema}string" />
          *     &lt;/restriction>
@@ -492,6 +496,8 @@ public class Beans {
 
             @XmlAttribute(name = "name", required = true)
             protected String name;
+            @XmlAttribute(name = "class")
+            protected String clazz;
             @XmlAttribute(name = "value")
             protected String value;
             @XmlAttribute(name = "ref")
@@ -517,6 +523,28 @@ public class Beans {
              */
             public void setName(String value) {
                 this.name = value;
+            }
+
+            /**
+             * 获取clazz属性的值。
+             * 
+             * @return
+             *         possible object is
+             *         {@link String }
+             */
+            public String getClazz() {
+                return clazz;
+            }
+
+            /**
+             * 设置clazz属性的值。
+             * 
+             * @param value
+             *            allowed object is
+             *            {@link String }
+             */
+            public void setClazz(String value) {
+                this.clazz = value;
             }
 
             /**
