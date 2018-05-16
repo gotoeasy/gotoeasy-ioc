@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ioc:beans xmlns:ioc="http://www.gotoeasy.top/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.gotoeasy.top/schema/beans gotoeasy-beans.xsd">
+
+	<!-- 按默认构造方法创建Bean -->
+	<bean id="student" class="top.gotoeasy.framework.ioc.xml.config.Student" />
+
+	<!-- 简单类型 -->
+	<bean id="age" class="int" value="20" />
+
+	<!-- 单纯引用 -->
+	<bean id="zhangsan" ref="student" />
+
+	<!-- 按默认构造方法创建Bean，按指定属性注入 -->
+	<bean id="lisi" class="top.gotoeasy.framework.ioc.xml.config.Student">
+		<property name="age" ref="age" />
+		<!-- 简单类型的属性可以直接设定值 -->
+		<property name="phone" class="String" value="13812345678" />
+	</bean>
+
+	<!-- 按指定构造方法创建Bean -->
+	<bean id="wangwu" class="top.gotoeasy.framework.ioc.xml.config.Student">
+		<constructor>
+			<!-- 简单类型的属性可以直接设定值 -->
+			<arg class="String" value="王五" />
+			<arg ref="age" />
+		</constructor>
+		<property name="phone" class="String" value="13611112222" />
+	</bean>
+
+	<!-- 按指定构造方法创建Bean，按指定属性注入 -->
+	<bean id="xiaohong" class="top.gotoeasy.framework.ioc.xml.config.Student">
+		<constructor>
+			<arg class="String" value="小红" />
+		</constructor>
+		<property name="age" ref="age" />
+	</bean>
+
+</ioc:beans>

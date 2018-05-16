@@ -2,6 +2,7 @@ package top.gotoeasy.framework.ioc.util;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.XMLConstants;
@@ -11,8 +12,11 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 
+import top.gotoeasy.framework.core.config.DefaultConfig;
 import top.gotoeasy.framework.core.converter.ConvertUtil;
 import top.gotoeasy.framework.core.util.CmnClass;
+import top.gotoeasy.framework.core.util.CmnResource;
+import top.gotoeasy.framework.core.util.CmnString;
 import top.gotoeasy.framework.ioc.exception.IocException;
 import top.gotoeasy.framework.ioc.xml.Beans;
 import top.gotoeasy.framework.ioc.xml.Beans.Bean;
@@ -28,7 +32,7 @@ public class CmnXml {
 
             Unmarshaller shaller = context.createUnmarshaller();
 
-            shaller.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(new File("e:/000/gotoeasy-beans.xsd")));
+            shaller.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(CmnResource.getFile("xsd/gotoeasy-beans.xsd")));
 
             JAXBElement<Beans> root = shaller.unmarshal(new StreamSource(new File("e:/000/NewFile.xml")), Beans.class);
             Beans xmlBeans = root.getValue();
@@ -39,20 +43,37 @@ public class CmnXml {
     }
 
     public static Map<String, Bean> getXmlBeanDefines() {
+
+        Map<String, Bean> map = new HashMap<>();
+        String fileNames = DefaultConfig.getInstance().getString("ioc.config.file");
+        if ( CmnString.isNotBlank(fileNames) ) {
+            String[] names = fileNames.split(",");
+            List<Bean> list;
+            for ( int i = 0; i < names.length; i++ ) {
+                list = getXmlBeans(CmnResource.getFile(names[i].trim()));
+                list.forEach(bean -> {
+                    if ( map.containsKey(bean.getId()) ) {
+                        throw new IocException("XML配置中Bean的id有重复：" + bean.getId());
+                    }
+                    map.put(bean.getId(), bean);
+                });
+            }
+        }
+
+        return map;
+    }
+
+    public static List<Bean> getXmlBeans(File file) {
         JAXBContext context;
         try {
             context = JAXBContext.newInstance(Beans.class);
 
             Unmarshaller shaller = context.createUnmarshaller();
 
-            shaller.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(new File("e:/000/gotoeasy-beans.xsd")));
+            shaller.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(CmnResource.getFile("xsd/gotoeasy-beans.xsd")));
 
-            JAXBElement<Beans> root = shaller.unmarshal(new StreamSource(new File("e:/000/NewFile.xml")), Beans.class);
-            Beans xmlBeans = root.getValue();
-
-            Map<String, Bean> map = new HashMap<>();
-            xmlBeans.getBean().forEach(bean -> map.put(bean.getId(), bean));
-            return map;
+            JAXBElement<Beans> root = shaller.unmarshal(new StreamSource(file), Beans.class);
+            return root.getValue().getBean();
         } catch (Exception e) {
             throw new IocException("Bean定义的xml配置文件读取失败", e);
         }

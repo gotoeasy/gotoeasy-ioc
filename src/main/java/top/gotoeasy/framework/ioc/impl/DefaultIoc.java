@@ -17,7 +17,6 @@ import top.gotoeasy.framework.core.log.Log;
 import top.gotoeasy.framework.core.log.LoggerFactory;
 import top.gotoeasy.framework.core.reflect.ScanBuilder;
 import top.gotoeasy.framework.core.util.CmnBean;
-import top.gotoeasy.framework.core.util.CmnClass;
 import top.gotoeasy.framework.core.util.CmnString;
 import top.gotoeasy.framework.ioc.annotation.Autowired;
 import top.gotoeasy.framework.ioc.annotation.Component;
@@ -129,15 +128,20 @@ public class DefaultIoc extends BaseIoc {
         Constructor<?> constructor = null;
         Object[] initargs = null;
 
-        Class<?> superclass = CmnXml.getBeanClass(bean.getClazz());
-        List<Arg> args = bean.getConstructor().getArg();
+        Class<?> superclass = getXmlBeanClass(bean.getClazz(), bean.getRef());
         if ( bean.getConstructor() != null ) {
+            List<Arg> args = bean.getConstructor().getArg();
             constructor = getConstructorByArgs(name, superclass, args);
             initargs = getXmlBeanInitargs(args);
         }
 
         // 创建
-        Object obj = EnhanceBuilder.get().setSuperclass(superclass).setConstructorArgs(constructor, initargs).matchAopList(aopList).build();
+        Object obj;
+        if ( CmnString.isNotBlank(bean.getValue()) ) {
+            obj = CmnXml.getBeanValue(bean.getClazz(), bean.getValue());
+        } else {
+            obj = EnhanceBuilder.get().setSuperclass(superclass).setConstructorArgs(constructor, initargs).matchAopList(aopList).build();
+        }
         super.put(name, obj);
         mapBool.remove(name); // 创建成功
 
@@ -175,23 +179,29 @@ public class DefaultIoc extends BaseIoc {
         Arg arg;
         for ( int i = 0; i < parameterTypes.length; i++ ) {
             arg = args.get(i);
-            if ( CmnString.isNotBlank(arg.getClazz()) ) {
-                parameterTypes[i] = CmnClass.loadClass(arg.getClazz());
-            } else if ( super.getBean(arg.getRef()) != null ) {
-                parameterTypes[i] = super.getBean(arg.getRef()).getClass();
-            } else if ( mapScan.containsKey(arg.getRef()) ) {
-                parameterTypes[i] = mapScan.get(arg.getRef()).clas;
-            } else if ( mapXml.containsKey(arg.getRef()) ) {
-                parameterTypes[i] = CmnXml.getBeanClass(mapXml.get(arg.getRef()).getClazz());
-            } else {
-                throw new IocException("找不到Bean定义：" + arg.getRef());
-            }
+            parameterTypes[i] = getXmlBeanClass(arg.getClazz(), arg.getRef());
         }
 
         try {
             return superclass.getConstructor(parameterTypes);
         } catch (Exception e) {
             throw new IocException("XML的Bean配置找不到相应的构造方法，Bean id：" + name, e);
+        }
+    }
+
+    private Class<?> getXmlBeanClass(String clazz, String ref) {
+        if ( CmnString.isNotBlank(clazz) ) {
+            return CmnXml.getBeanClass(clazz);
+        } else if ( mapScan.containsKey(ref) ) {
+            return mapScan.get(ref).clas;
+        } else if ( mapXml.containsKey(ref) ) {
+            Bean bean = mapXml.get(ref);
+            if ( CmnString.isNotBlank(bean.getClazz()) ) {
+                return CmnXml.getBeanClass(bean.getClazz());
+            }
+            return getXmlBeanClass(bean.getClazz(), bean.getRef());
+        } else {
+            throw new IocException("找不到Bean定义：" + ref);
         }
     }
 
