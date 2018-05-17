@@ -52,6 +52,11 @@ public class DefaultIoc extends BaseIoc {
      */
     public DefaultIoc() {
         init();
+
+        mapScan = null;
+        mapXml = null;
+        aopList = null;
+        mapBool = null;
     }
 
     /**
