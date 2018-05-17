@@ -6,8 +6,8 @@ import org.junit.Test
 
 import spock.lang.Specification
 import top.gotoeasy.framework.core.config.DefaultConfig
+import top.gotoeasy.framework.ioc.testconfig.xml.Student
 import top.gotoeasy.framework.ioc.util.CmnIoc
-import top.gotoeasy.framework.ioc.xml.config.Student
 
 
 class XmlBeanTest  extends Specification {
@@ -15,8 +15,8 @@ class XmlBeanTest  extends Specification {
     @Test
     public void "1单纯XML配置文件配置Bean"() {
         expect:
-        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.xml");
-        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/xml/config/beans.xml");
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.testconfig.xml");
+        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/testconfig/xml/beans.xml");
 
         Student student = CmnIoc.getBean("student")
         int age = CmnIoc.getBean("age")

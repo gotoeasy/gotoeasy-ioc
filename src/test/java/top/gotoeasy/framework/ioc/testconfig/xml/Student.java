@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.ioc.xml.config;
+package top.gotoeasy.framework.ioc.testconfig.xml;
 
 public class Student {
 
