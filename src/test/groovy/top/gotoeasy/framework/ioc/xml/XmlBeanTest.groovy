@@ -20,7 +20,7 @@ class XmlBeanTest  extends Specification {
         DefaultConfig.getInstance().set("ioc.config.file", "test/xml/beans.xml");
 
         Student student = CmnIoc.getBean("student")
-        int age = CmnIoc.getBean("age")
+        def age = CmnIoc.getBean("age")
         Student zhangsan = CmnIoc.getBean("zhangsan")
         Student lisi = CmnIoc.getBean("lisi")
         Student wangwu = CmnIoc.getBean("wangwu")
