@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.ioc.sample.config.sample92;
+package top.gotoeasy.framework.ioc.testconfig.defaultioc.sample92;
 
 import top.gotoeasy.framework.ioc.annotation.Autowired;
 import top.gotoeasy.framework.ioc.annotation.Component;

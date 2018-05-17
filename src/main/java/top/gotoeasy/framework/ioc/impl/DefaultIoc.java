@@ -75,11 +75,38 @@ public class DefaultIoc extends BaseIoc {
         // 创建Bean对象
         initComponentBeans();
 
-        // AOP对象最后做注入
-        for ( Object bean : aopList ) {
-            injectObject(bean);
-        }
+        // XML配置Bean的属性注入
+        injectPropertyOfXmlBean();
 
+        // 扫描Bean的字段及方法注入
+        injectFieldMethodOfScanBean();
+
+    }
+
+    // 扫描Bean的字段及方法注入
+    private void injectFieldMethodOfScanBean() {
+        mapScan.forEach((name, beanDefine) -> {
+            Object obj = super.getBean(name);
+            // 字段注入
+            injectByField(obj);
+            // 方法注入
+            injectByMethod(obj);
+        });
+    }
+
+    // XML配置Bean的属性注入
+    private void injectPropertyOfXmlBean() {
+        mapXml.forEach((name, bean) -> {
+            Object obj = super.getBean(name);
+            List<Property> propertys = bean.getProperty();
+            propertys.forEach(property -> {
+                if ( CmnString.isNotBlank(property.getRef()) ) {
+                    CmnBean.setPropertyValue(obj, property.getName(), initBean(property.getRef()));
+                } else {
+                    CmnBean.setPropertyValue(obj, property.getName(), CmnXml.getBeanValue(property.getClazz(), property.getValue()));
+                }
+            });
+        });
     }
 
     /**
@@ -144,16 +171,6 @@ public class DefaultIoc extends BaseIoc {
         }
         super.put(name, obj);
         mapBool.remove(name); // 创建成功
-
-        // 注入
-        List<Property> propertys = bean.getProperty();
-        propertys.forEach(property -> {
-            if ( CmnString.isNotBlank(property.getRef()) ) {
-                CmnBean.setPropertyValue(obj, property.getName(), initBean(property.getRef()));
-            } else {
-                CmnBean.setPropertyValue(obj, property.getName(), CmnXml.getBeanValue(property.getClazz(), property.getValue()));
-            }
-        });
 
         return obj;
     }
@@ -231,8 +248,6 @@ public class DefaultIoc extends BaseIoc {
         super.put(beanDefine.name, obj);
         mapBool.remove(name); // 创建成功
 
-        // 注入
-        injectObject(obj);
         return obj;
     }
 
@@ -280,18 +295,6 @@ public class DefaultIoc extends BaseIoc {
         });
 
         return list;
-    }
-
-    /**
-     * 扫描Bean的内部字段及方法注入
-     * 
-     * @param bean 待注入处理的Bean对象
-     */
-    private void injectObject(Object bean) {
-        // 字段注入
-        injectByField(bean);
-        // 方法注入
-        injectByMethod(bean);
     }
 
     /**
