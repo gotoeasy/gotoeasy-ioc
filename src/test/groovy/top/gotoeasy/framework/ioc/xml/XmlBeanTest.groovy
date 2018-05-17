@@ -16,7 +16,7 @@ class XmlBeanTest  extends Specification {
     public void "1单纯XML配置文件配置Bean"() {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.testconfig.xml");
-        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/testconfig/xml/beans.xml");
+        DefaultConfig.getInstance().set("ioc.config.file", "test/xml/beans.xml");
 
         Student student = CmnIoc.getBean("student")
         int age = CmnIoc.getBean("age")
