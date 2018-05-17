@@ -6,7 +6,7 @@ import top.gotoeasy.framework.ioc.impl.DefaultIoc;
 /**
  * IOC工具类
  * 
- * @since 2018/3
+ * @since 2018/5
  * @author 青松
  */
 public class CmnIoc {
