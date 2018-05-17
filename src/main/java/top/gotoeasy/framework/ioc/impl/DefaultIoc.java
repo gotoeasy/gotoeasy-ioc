@@ -315,7 +315,7 @@ public class DefaultIoc extends BaseIoc {
                     refName = beanNameStrategy.getName(field.getType());
                 }
 
-                if ( !super.mapIoc.containsKey(refName) ) {
+                if ( !mapScan.containsKey(refName) && mapXml.containsKey(refName) ) {
                     throw new IocException("找不到指定名称的Bean对象:" + refName);
                 }
 
