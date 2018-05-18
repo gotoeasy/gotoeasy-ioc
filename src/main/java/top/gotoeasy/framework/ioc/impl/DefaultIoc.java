@@ -3,6 +3,7 @@ package top.gotoeasy.framework.ioc.impl;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import top.gotoeasy.framework.core.util.CmnBean;
 import top.gotoeasy.framework.core.util.CmnString;
 import top.gotoeasy.framework.ioc.annotation.Autowired;
 import top.gotoeasy.framework.ioc.annotation.Component;
+import top.gotoeasy.framework.ioc.annotation.Configuration;
 import top.gotoeasy.framework.ioc.exception.IocException;
 import top.gotoeasy.framework.ioc.util.CmnXml;
 import top.gotoeasy.framework.ioc.xml.Beans.Bean;
@@ -74,6 +76,9 @@ public class DefaultIoc extends BaseIoc {
             }
         });
 
+        // 编码方式配置的单纯Bean（编码负责对象的创建和注入，直接存放容器）
+        initConfigurationBean();
+
         // 创建AOP对象
         aopList = initAopBeans();
 
@@ -85,6 +90,40 @@ public class DefaultIoc extends BaseIoc {
 
         // 扫描Bean的字段及方法注入
         injectFieldMethodOfScanBean();
+
+    }
+
+    // 编码方式配置的单纯Bean（编码负责对象的创建和注入，直接存放容器）
+    @SuppressWarnings("unchecked")
+    private void initConfigurationBean() {
+        String packages = DefaultConfig.getInstance().getString("ioc.scan");
+        List<Class<?>> classlist = ScanBuilder.get().packages(packages).typeAnnotations(Configuration.class).getClasses();
+        classlist.forEach(clas -> {
+            Object configObj = createInstance(clas);
+            Method[] methods = clas.getDeclaredMethods();
+            top.gotoeasy.framework.ioc.annotation.Bean annoBean;
+            int modifies;
+            for ( Method method : methods ) {
+                modifies = method.getModifiers();
+                if ( !Modifier.isPublic(modifies) || !method.isAnnotationPresent(top.gotoeasy.framework.ioc.annotation.Bean.class)
+                        || void.class.equals(method.getReturnType()) || method.getParameterCount() > 0 ) {
+                    // 非public、没有返回值、没有@Bean、带参数的方法，都无视跳过
+                    continue;
+                }
+
+                annoBean = method.getAnnotation(top.gotoeasy.framework.ioc.annotation.Bean.class);
+                String name = CmnString.isNotBlank(annoBean.value()) ? annoBean.value() : method.getName();
+
+                Object obj;
+                try {
+                    obj = method.invoke(configObj);
+                } catch (Exception e) {
+                    throw new IocException(e);
+                }
+
+                super.put(name, obj);
+            }
+        });
 
     }
 
