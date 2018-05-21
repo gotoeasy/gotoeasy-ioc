@@ -21,8 +21,8 @@ import top.gotoeasy.framework.core.util.CmnBean;
 import top.gotoeasy.framework.core.util.CmnString;
 import top.gotoeasy.framework.ioc.annotation.Autowired;
 import top.gotoeasy.framework.ioc.annotation.Bean;
+import top.gotoeasy.framework.ioc.annotation.BeanConfig;
 import top.gotoeasy.framework.ioc.annotation.Component;
-import top.gotoeasy.framework.ioc.annotation.Configuration;
 import top.gotoeasy.framework.ioc.exception.IocException;
 import top.gotoeasy.framework.ioc.util.CmnXml;
 import top.gotoeasy.framework.ioc.xml.Beans.XmlBean;
@@ -78,7 +78,7 @@ public class DefaultIoc extends BaseIoc {
         });
 
         // 编码方式配置的单纯Bean（编码负责对象的创建和注入，直接存放容器）
-        initConfigurationBean();
+        initConfigBean();
 
         // 创建AOP对象
         aopList = initAopBeans();
@@ -96,9 +96,9 @@ public class DefaultIoc extends BaseIoc {
 
     // 编码方式配置的单纯Bean（编码负责对象的创建和注入，直接存放容器）
     @SuppressWarnings("unchecked")
-    private void initConfigurationBean() {
+    private void initConfigBean() {
         String packages = DefaultConfig.getInstance().getString("ioc.scan");
-        List<Class<?>> classlist = ScanBuilder.get().packages(packages).typeAnnotations(Configuration.class).getClasses();
+        List<Class<?>> classlist = ScanBuilder.get().packages(packages).typeAnnotations(BeanConfig.class).getClasses();
         classlist.forEach(clas -> {
             Object configObj = createInstance(clas);
             Method[] methods = clas.getDeclaredMethods();
@@ -106,9 +106,8 @@ public class DefaultIoc extends BaseIoc {
             int modifies;
             for ( Method method : methods ) {
                 modifies = method.getModifiers();
-                if ( !Modifier.isPublic(modifies) || !method.isAnnotationPresent(Bean.class) || void.class.equals(method.getReturnType())
-                        || method.getParameterCount() > 0 ) {
-                    // 非public、没有返回值、没有@Bean、带参数的方法，都无视跳过
+                if ( !Modifier.isPublic(modifies) || !method.isAnnotationPresent(Bean.class) || void.class.equals(method.getReturnType()) ) {
+                    // 非public、没有返回值、没有@Bean，都无视跳过
                     continue;
                 }
 
