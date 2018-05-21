@@ -10,8 +10,8 @@
 				<!-- beans标签包含 0~N个bean标签 -->
 				<xs:element name="bean">
 					<xs:complexType>
-						<xs:sequence>
-							<!-- bean标签包含 0~1个constructor构造方法标签，0个时通常不写 -->
+						<xs:choice minOccurs="0" maxOccurs="unbounded">
+							<!-- bean标签包含 0~1个constructor构造方法标签，无参构造方法时通常不写 -->
 							<xs:element name="constructor" minOccurs="0"
 								maxOccurs="1">
 								<xs:complexType>
@@ -42,7 +42,7 @@
 									<xs:attribute name="ref" type="xs:string" />
 								</xs:complexType>
 							</xs:element>
-						</xs:sequence>
+						</xs:choice>
 
 						<!-- bean标签属性，id必须设定，class、class+value、ref三者必选一个进行设定 -->
 						<xs:attribute name="id" type="xs:string"
