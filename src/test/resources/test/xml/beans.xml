@@ -21,12 +21,12 @@
 
 	<!-- 按指定构造方法创建Bean -->
 	<bean id="wangwu" class="top.gotoeasy.framework.ioc.testconfig.xml.Student">
+		<property name="phone" class="String" value="13611112222" />
 		<constructor>
 			<!-- 简单类型的属性可以直接设定值 -->
 			<arg class="String" value="王五" />
 			<arg ref="age" />
 		</constructor>
-		<property name="phone" class="String" value="13611112222" />
 	</bean>
 
 	<!-- 按指定构造方法创建Bean，按指定属性注入 -->
