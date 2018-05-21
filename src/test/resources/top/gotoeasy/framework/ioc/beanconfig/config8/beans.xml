@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ioc:beans xmlns:ioc="http://www.gotoeasy.top/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.gotoeasy.top/schema/beans gotoeasy-beans.xsd">
+
+   	<bean id="myMap" class="top.gotoeasy.framework.ioc.beanconfig.config8.MyMap"/>
+
+</ioc:beans>

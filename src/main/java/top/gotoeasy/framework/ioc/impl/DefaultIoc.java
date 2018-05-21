@@ -163,9 +163,7 @@ public class DefaultIoc extends BaseIoc {
         Set<String> set = new HashSet<>();
         List<String> list = new ArrayList<>();
         mapScan.forEach((id, beanDefine) -> {
-            if ( !set.add(id) ) {
-                list.add("Bean定义id重复:" + id);
-            }
+            set.add(id);
         });
         mapXml.forEach((id, xmlBean) -> {
             if ( !set.add(id) ) {
@@ -363,25 +361,6 @@ public class DefaultIoc extends BaseIoc {
     }
 
     /**
-     * 初始化指定Bean
-     */
-    private Object initBean(String name) {
-        if ( super.mapIoc.containsKey(name) ) {
-            return super.getBean(name);
-        }
-
-        if ( mapXml.containsKey(name) ) {
-            return initXmlBean(name);
-        } else if ( mapScan.containsKey(name) ) {
-            return initScanBean(name);
-        } else if ( mapBeanConfig.containsKey(name) ) {
-            return initBeanConfigDefineBean(name);
-        }
-
-        throw new IocException("指定Bean未定义：" + name);
-    }
-
-    /**
      * 初始化一个XML配置Bean
      * 
      * @param name Bean名称
@@ -568,7 +547,7 @@ public class DefaultIoc extends BaseIoc {
 
                 field.setAccessible(true);
                 try {
-                    field.set(bean, initBean(refName));
+                    field.set(bean, getBean(refName));
                 } catch (Exception e) {
                     throw new IocException("字段注入失败:" + field, e);
                 }
@@ -620,7 +599,7 @@ public class DefaultIoc extends BaseIoc {
                 refName = beanNameStrategy.getName(parameters[i].getType());
             }
 
-            args[i] = initBean(refName);
+            args[i] = getBean(refName);
         }
 
         return args;

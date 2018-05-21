@@ -24,6 +24,8 @@ class BeanConfigTest extends Specification {
         Map<String, Object> map = ioc.getBean("myMap")
         map.get("cnt") == null
 
+        ioc.getBean("myMap2") != null
+
         Map<String, Object>  map2 = ioc.getBean("aaa")
         map2.get("cnt") == 1
 
@@ -32,7 +34,7 @@ class BeanConfigTest extends Specification {
     }
 
     @Test
-    public void "2 重复的id"() {
+    public void "2 重复的编码配置id"() {
 
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config2");
@@ -98,6 +100,34 @@ class BeanConfigTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config6");
         DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config6/beans.xml");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
+    }
+
+
+    @Test
+    public void "7 编码配置Bean初始化失败"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config7");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        ioc.getBean("myBook")
+        then:
+        thrown(IocException)
+    }
+
+
+    @Test
+    public void "8 xml的id和扫描id重复"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config8");
+        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config8/beans.xml");
 
         when:
         Ioc ioc = new DefaultIoc();
