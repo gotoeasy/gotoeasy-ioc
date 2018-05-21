@@ -7,12 +7,15 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import top.gotoeasy.framework.aop.Enhance;
 import top.gotoeasy.framework.aop.EnhanceBuilder;
 import top.gotoeasy.framework.aop.annotation.Aop;
+import top.gotoeasy.framework.aop.util.AopUtil;
 import top.gotoeasy.framework.core.config.DefaultConfig;
 import top.gotoeasy.framework.core.log.Log;
 import top.gotoeasy.framework.core.log.LoggerFactory;
@@ -37,29 +40,52 @@ import top.gotoeasy.framework.ioc.xml.Beans.XmlBean.Property;
  */
 public class DefaultIoc extends BaseIoc {
 
-    private static final Log        log     = LoggerFactory.getLogger(DefaultIoc.class);
+    private static final Log              log           = LoggerFactory.getLogger(DefaultIoc.class);
 
     // @Component注解Bean
-    private Map<String, BeanDefine> mapScan = null;
+    private Map<String, BeanDefine>       mapScan       = null;
     // XML配置Bean
-    private Map<String, XmlBean>    mapXml  = null;
+    private Map<String, XmlBean>          mapXml        = null;
+    // 编码配置Bean
+    private Map<String, BeanConfigDefine> mapBeanConfig = null;
 
     // @Aop拦截处理对象
-    private List<Object>            aopList = null;
+    private List<Object>                  aopList       = null;
 
     // Bean创建状态
-    private Map<String, Boolean>    mapBool = new HashMap<>();
+    private Map<String, Boolean>          mapBool       = new HashMap<>();
 
     /**
      * 构造方法
      */
     public DefaultIoc() {
         init();
+    }
 
-        mapScan = null;
-        mapXml = null;
-        aopList = null;
-        mapBool = null;
+    /**
+     * 按名称取Bean对象
+     * 
+     * @param name 名称
+     * @return Bean对象
+     */
+    @Override
+    public Object getBean(String name) {
+        if ( super.mapIoc.containsKey(name) ) {
+            return super.mapIoc.get(name);
+        }
+
+        Object obj = null;
+        if ( mapXml.containsKey(name) ) {
+            obj = initXmlBean(name);
+            mapXml.remove(name);
+        } else if ( mapScan.containsKey(name) ) {
+            obj = initScanBean(name);
+            mapScan.remove(name);
+        } else if ( mapBeanConfig.containsKey(name) ) {
+            obj = initBeanConfigDefineBean(name);
+            mapBeanConfig.remove(name);
+        }
+        return obj;
     }
 
     /**
@@ -67,31 +93,236 @@ public class DefaultIoc extends BaseIoc {
      */
     private void init() {
 
-        mapScan = getBeanDefineMap();
-        mapXml = CmnXml.getXmlBeanDefines();
+        String packages = DefaultConfig.getInstance().getString("ioc.scan");
+        String fileNames = DefaultConfig.getInstance().getString("ioc.config.file");
 
-        mapXml.forEach((id, bean) -> {
-            if ( mapScan.containsKey(id) ) {
-                log.error("注解和配置的Bean定义名称有重复 {}:{}/{}", id, mapScan.get(id).clas.getCanonicalName(), bean.getClazz());
-                throw new IocException("Bean定义名称重复：" + id);
+        mapScan = getBeanDefineMap(packages);
+        mapBeanConfig = getBeanConfigDefineMap(packages);
+        mapXml = CmnXml.getXmlBeanDefines(fileNames);
+        log.trace("扫描读取Bean配置 ------ OK");
+
+        // 检查Bean的id是否有重复、是否依赖未定义的id、是否循环依赖
+        checkBeanDefine();
+        log.trace("检查Bean配置 --------- OK");
+
+        // 创建AOP对象并注入
+        aopList = initAopBeans();
+        aopList.forEach(aopBean -> {
+            injectByField(aopBean);
+            injectByMethod(aopBean);
+        });
+        log.trace("创建AOP对象并注入 ------ OK");
+
+//        // 编码方式配置的单纯Bean（编码负责对象的创建和注入，直接存放容器）
+//        initConfigBean();
+//
+//        // 创建Bean对象
+//        initComponentBeans();
+//
+//        // XML配置Bean的属性注入
+//        injectPropertyOfXmlBean();
+//
+//        // 扫描Bean的字段及方法注入
+//        injectFieldMethodOfScanBean();
+
+    }
+
+    // 创建编码方式配置Bean
+    private Object initBeanConfigDefineBean(String name) {
+        BeanConfigDefine beanConfigDefine = mapBeanConfig.get(name);
+        Method method = beanConfigDefine.method;
+        Parameter[] parameters = method.getParameters();
+        Object[] args = new Object[parameters.length];
+
+        for ( int i = 0; i < parameters.length; i++ ) {
+            String refName = null;
+            if ( parameters[i].isAnnotationPresent(Autowired.class) ) {
+                refName = parameters[i].getAnnotation(Autowired.class).value();
+            }
+            if ( CmnString.isBlank(refName) ) {
+                refName = beanNameStrategy.getName(parameters[i].getType());
+            }
+
+            args[i] = getBean(refName);
+        }
+
+        Object obj;
+        try {
+            obj = beanConfigDefine.method.invoke(beanConfigDefine.clasInstance, args);
+        } catch (Exception e) {
+            throw new IocException(e);
+        }
+
+        // 编码负责对象的创建和注入，直接存放容器
+        super.put(name, obj);
+        return obj;
+    }
+
+    // 检查Bean的id是否有重复、是否依赖未定义的id、是否循环依赖
+    private void checkBeanDefine() {
+        Set<String> set = new HashSet<>();
+        List<String> list = new ArrayList<>();
+        mapScan.forEach((id, beanDefine) -> {
+            if ( !set.add(id) ) {
+                list.add("Bean定义id重复:" + id);
+            }
+        });
+        mapXml.forEach((id, xmlBean) -> {
+            if ( !set.add(id) ) {
+                list.add("Bean定义id重复:" + id);
+            }
+        });
+        mapBeanConfig.forEach((id, beanConfigDefine) -> {
+            if ( !set.add(id) ) {
+                list.add("Bean定义id重复:" + id);
             }
         });
 
-        // 编码方式配置的单纯Bean（编码负责对象的创建和注入，直接存放容器）
-        initConfigBean();
+        // 检查注入是否正确
+        mapScan.forEach((id, beanDefine) -> {
+            checkScanBeanArgsInject(set, beanDefine, list);
+            checkScanBeanFieldInject(set, beanDefine, list);
+            checkScanBeanMethodInject(set, beanDefine, list);
+        });
+        mapBeanConfig.forEach((id, beanConfigDefine) -> checkBeanConfigMethodArgsInject(set, beanConfigDefine.method, list));
+        checkXmlBeanPropertyInject(set, list);
+        if ( !list.isEmpty() ) {
+            log.error("Bean配置有误{}", list);
+            throw new IocException("Bean配置有误:" + list.toString());
+        }
 
-        // 创建AOP对象
-        aopList = initAopBeans();
+        // 检查是否循环
+    }
 
-        // 创建Bean对象
-        initComponentBeans();
+    // 检查XML配置Bean的属性注入是否注入未定义id
+    private void checkXmlBeanPropertyInject(Set<String> set, List<String> list) {
+        mapXml.forEach((name, xmlBean) -> {
+            // 构造方法参数注入检查
+            checkXmlBeanArgsInject(set, xmlBean, list);
+            // 属性注入检查
+            List<Property> propertys = xmlBean.getProperty();
+            propertys.forEach(property -> {
+                if ( CmnString.isNotBlank(property.getRef()) && !set.contains(property.getRef()) ) {
+                    list.add("属性注入找不到指定id的Bean定义:" + property.getRef() + "[xml bean id=" + xmlBean.getId() + "]");
+                }
+            });
 
-        // XML配置Bean的属性注入
-        injectPropertyOfXmlBean();
+        });
+    }
 
-        // 扫描Bean的字段及方法注入
-        injectFieldMethodOfScanBean();
+    private void checkXmlBeanArgsInject(Set<String> set, XmlBean xmlBean, List<String> list) {
+        // 构造方法参数注入检查
+        if ( xmlBean.getConstructor() == null ) {
+            return;
+        }
 
+        List<Arg> args = xmlBean.getConstructor().getArg();
+        if ( args == null ) {
+            return;
+        }
+
+        for ( int i = 0; i < args.size(); i++ ) {
+            Arg arg = args.get(i);
+            if ( CmnString.isNotBlank(arg.getRef()) && !set.contains(arg.getRef()) ) {
+                list.add("构造方法参数注入找不到指定id的Bean定义:" + arg.getRef() + "[xml bean id=" + xmlBean.getId() + "]");
+            }
+        }
+
+    }
+
+    // 检查扫描Bean的方法注入是否注入未定义id
+    private void checkBeanConfigMethodArgsInject(Set<String> set, Method method, List<String> list) {
+        String refName = null;
+        Parameter[] parameters = method.getParameters();
+        for ( int i = 0; i < parameters.length; i++ ) {
+            if ( parameters[i].isAnnotationPresent(Autowired.class) ) {
+                refName = parameters[i].getAnnotation(Autowired.class).value();
+            }
+            if ( CmnString.isBlank(refName) ) {
+                refName = beanNameStrategy.getName(parameters[i].getType());
+            }
+
+            if ( !set.contains(refName) ) {
+                list.add("方法注入找不到指定id的Bean定义:" + refName + "[" + AopUtil.getMethodDesc(method.getDeclaringClass(), method) + "]");
+            }
+            refName = null;
+        }
+    }
+
+    // 检查扫描Bean的方法注入是否注入未定义id
+    private void checkScanBeanMethodInject(Set<String> set, BeanDefine beanDefine, List<String> list) {
+        Class<?> scanBeanClass = beanDefine.clas;
+        Method[] methods = scanBeanClass.getDeclaredMethods();
+        String refName = null;
+        for ( Method method : methods ) {
+            if ( !method.isAnnotationPresent(Autowired.class) ) {
+                continue;
+            }
+
+            if ( method.getParameterCount() == 0 ) {
+                list.add("方法无参数，无效的注入:" + scanBeanClass.getCanonicalName() + "." + method.getName() + "()");
+            }
+
+            Parameter[] parameters = method.getParameters();
+            for ( int i = 0; i < parameters.length; i++ ) {
+                if ( method.getParameterCount() == 1 ) {
+                    refName = method.getAnnotation(Autowired.class).value();
+                }
+                if ( CmnString.isBlank(refName) && parameters[i].isAnnotationPresent(Autowired.class) ) {
+                    refName = parameters[i].getAnnotation(Autowired.class).value();
+                }
+                if ( CmnString.isBlank(refName) ) {
+                    refName = beanNameStrategy.getName(parameters[i].getType());
+                }
+
+                if ( !set.contains(refName) ) {
+                    list.add("方法注入找不到指定id的Bean定义:" + refName + "[" + AopUtil.getMethodDesc(scanBeanClass, method) + "]");
+                }
+                refName = null;
+            }
+        }
+    }
+
+    // 检查扫描Bean的构造方法参数是否注入未定义id
+    private void checkScanBeanArgsInject(Set<String> set, BeanDefine beanDefine, List<String> list) {
+        if ( beanDefine.constructor == null ) {
+            return;
+        }
+
+        beanDefine.initargs = new Object[beanDefine.constructor.getParameterCount()];
+        Parameter[] parameters = beanDefine.constructor.getParameters();
+        for ( int i = 0; i < parameters.length; i++ ) {
+            String paramBeanName = null;
+            if ( parameters[i].isAnnotationPresent(Autowired.class) ) {
+                Autowired anno = parameters[i].getAnnotation(Autowired.class);
+                paramBeanName = anno.value();
+            }
+            if ( CmnString.isBlank(paramBeanName) ) {
+                paramBeanName = beanNameStrategy.getName(parameters[i].getType());
+            }
+
+            if ( !set.contains(paramBeanName) ) {
+                list.add("构造方法参数注入找不到指定id的Bean定义:" + paramBeanName + "[" + beanDefine.clas.getCanonicalName() + "]");
+            }
+        }
+
+    }
+
+    // 检查扫描Bean的字段注入是否注入未定义id
+    private void checkScanBeanFieldInject(Set<String> set, BeanDefine beanDefine, List<String> list) {
+        Field[] fields = beanDefine.clas.getDeclaredFields();
+        for ( Field field : fields ) {
+            if ( field.isAnnotationPresent(Autowired.class) ) {
+                Autowired anno = field.getAnnotation(Autowired.class);
+                String refName = anno.value();
+                if ( CmnString.isBlank(refName) ) {
+                    refName = beanNameStrategy.getName(field.getType());
+                }
+                if ( !set.contains(refName) ) {
+                    list.add("字段注入找不到指定id的Bean定义:" + refName + "[" + beanDefine.clas.getCanonicalName() + ":" + field.getName() + "]");
+                }
+            }
+        }
     }
 
     // 编码方式配置的单纯Bean（编码负责对象的创建和注入，直接存放容器）
@@ -125,6 +356,43 @@ public class DefaultIoc extends BaseIoc {
             }
         });
 
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, BeanConfigDefine> getBeanConfigDefineMap(String packages) {
+        List<Class<?>> classlist = ScanBuilder.get().packages(packages).typeAnnotations(BeanConfig.class).getClasses();
+
+        Map<String, BeanConfigDefine> map = new HashMap<>();
+        classlist.forEach(clas -> {
+            Method[] methods = clas.getDeclaredMethods();
+            Bean annoBean;
+            int modifies;
+            for ( Method method : methods ) {
+                modifies = method.getModifiers();
+                if ( !Modifier.isPublic(modifies) || !method.isAnnotationPresent(Bean.class) || void.class.equals(method.getReturnType()) ) {
+                    // 非public、没有返回值、没有@Bean，都无视跳过
+                    continue;
+                }
+
+                annoBean = method.getAnnotation(Bean.class);
+                String name = CmnString.isNotBlank(annoBean.value()) ? annoBean.value() : method.getName();
+
+                if ( map.containsKey(name) ) {
+                    log.error("Bean配置有误[Bean定义id重复:{}]", name);
+                    throw new IocException("Bean id重复(" + name + ")，请检查：" + clas.getCanonicalName());
+                }
+
+                BeanConfigDefine beanConfigDefine = new BeanConfigDefine();
+                beanConfigDefine.name = name;
+                beanConfigDefine.clas = clas;
+                beanConfigDefine.clasInstance = createInstance(clas);
+                beanConfigDefine.method = method;
+
+                map.put(name, beanConfigDefine);
+            }
+        });
+
+        return map;
     }
 
     // 扫描Bean的字段及方法注入
@@ -173,6 +441,8 @@ public class DefaultIoc extends BaseIoc {
             return initXmlBean(name);
         } else if ( mapScan.containsKey(name) ) {
             return initScanBean(name);
+        } else if ( mapBeanConfig.containsKey(name) ) {
+            return initBeanConfigDefineBean(name);
         }
 
         throw new IocException("指定Bean未定义：" + name);
@@ -185,25 +455,21 @@ public class DefaultIoc extends BaseIoc {
      * @return Bean对象
      */
     private Object initXmlBean(String name) {
-        if ( super.mapIoc.containsKey(name) ) {
-            return super.getBean(name);
-        }
-
-        if ( mapBool.containsKey(name) ) {
-            throw new IocException("Bean循环依赖无法初始化:" + name);
-        }
-        mapBool.put(name, true); // 创建中
+//          if ( mapBool.containsKey(name) ) {
+//            throw new IocException("Bean循环依赖无法初始化:" + name);
+//        }
+//        mapBool.put(name, true); // 创建中
 
         // 取定义
         XmlBean xmlBean = mapXml.get(name);
         Constructor<?> constructor = null;
         Object[] initargs = null;
 
-        Class<?> superclass = getXmlBeanClass(xmlBean.getClazz(), xmlBean.getRef());
+        Class<?> targetClass = getXmlBeanClass(xmlBean.getClazz(), xmlBean.getRef());
         if ( xmlBean.getConstructor() != null ) {
             List<Arg> args = xmlBean.getConstructor().getArg();
-            constructor = getConstructorByArgs(name, superclass, args);
-            initargs = getXmlBeanInitargs(args);
+            constructor = getConstructorByArgs(name, targetClass, args); // name用于异常消息
+            initargs = getXmlBeanInitargs(args); // 参数可以有引用注入
         }
 
         // 创建
@@ -211,10 +477,19 @@ public class DefaultIoc extends BaseIoc {
         if ( CmnString.isNotBlank(xmlBean.getValue()) ) {
             obj = CmnXml.getBeanValue(xmlBean.getClazz(), xmlBean.getValue());
         } else {
-            obj = EnhanceBuilder.get().setSuperclass(superclass).setConstructorArgs(constructor, initargs).matchAopList(aopList).build();
+            obj = EnhanceBuilder.get().setSuperclass(targetClass).setConstructorArgs(constructor, initargs).matchAopList(aopList).build();
         }
         super.put(name, obj);
-        mapBool.remove(name); // 创建成功
+//        mapBool.remove(name); // 创建成功
+
+        List<Property> propertys = xmlBean.getProperty();
+        propertys.forEach(property -> {
+            if ( CmnString.isNotBlank(property.getRef()) ) {
+                CmnBean.setPropertyValue(obj, property.getName(), getBean(property.getRef())); // 属性可以有引用注入
+            } else {
+                CmnBean.setPropertyValue(obj, property.getName(), CmnXml.getBeanValue(property.getClazz(), property.getValue()));
+            }
+        });
 
         return obj;
     }
@@ -225,7 +500,7 @@ public class DefaultIoc extends BaseIoc {
         for ( int i = 0; i < initargs.length; i++ ) {
             arg = args.get(i);
             if ( CmnString.isNotBlank(arg.getRef()) ) {
-                initargs[i] = initBean(arg.getRef());
+                initargs[i] = getBean(arg.getRef());
             } else {
                 initargs[i] = CmnXml.getBeanValue(arg.getClazz(), arg.getValue());
             }
@@ -234,7 +509,7 @@ public class DefaultIoc extends BaseIoc {
         return initargs;
     }
 
-    private Constructor<?> getConstructorByArgs(String name, Class<?> superclass, List<Arg> args) {
+    private Constructor<?> getConstructorByArgs(String name, Class<?> targetClass, List<Arg> args) {
         Class<?>[] parameterTypes = new Class<?>[args.size()];
 
         Arg arg;
@@ -244,12 +519,13 @@ public class DefaultIoc extends BaseIoc {
         }
 
         try {
-            return superclass.getConstructor(parameterTypes);
+            return targetClass.getConstructor(parameterTypes);
         } catch (Exception e) {
             throw new IocException("XML的Bean配置找不到相应的构造方法，Bean id：" + name, e);
         }
     }
 
+    // 取得class(简写类要转换,ref则要递归查找类)
     private Class<?> getXmlBeanClass(String clazz, String ref) {
         if ( CmnString.isNotBlank(clazz) ) {
             return CmnXml.getBeanClass(clazz);
@@ -273,24 +549,39 @@ public class DefaultIoc extends BaseIoc {
      * @return Bean对象
      */
     private Object initScanBean(String name) {
-        if ( super.mapIoc.containsKey(name) ) {
-            return super.getBean(name);
-        }
-
-        if ( mapBool.containsKey(name) ) {
-            throw new IocException("Bean循环依赖无法初始化:" + name);
-        }
-        mapBool.put(name, true); // 创建中
+//        if ( mapBool.containsKey(name) ) {
+//            throw new IocException("Bean循环依赖无法初始化:" + name);
+//        }
+//        mapBool.put(name, true); // 创建中
 
         // 取定义
         BeanDefine beanDefine = mapScan.get(name);
-        getAndSetInitargs(beanDefine);
+        if ( beanDefine.constructor != null ) {
+            beanDefine.initargs = new Object[beanDefine.constructor.getParameterCount()];
+            Parameter[] parameters = beanDefine.constructor.getParameters();
+            for ( int i = 0; i < parameters.length; i++ ) {
+                String paramBeanName = null;
+                if ( parameters[i].isAnnotationPresent(Autowired.class) ) {
+                    Autowired anno = parameters[i].getAnnotation(Autowired.class);
+                    paramBeanName = anno.value();
+                }
+                if ( CmnString.isBlank(paramBeanName) ) {
+                    paramBeanName = beanNameStrategy.getName(parameters[i].getType());
+                }
+
+                beanDefine.initargs[i] = getBean(paramBeanName);
+            }
+        }
 
         // 创建
         Object obj = EnhanceBuilder.get().setSuperclass(beanDefine.clas).setConstructorArgs(beanDefine.constructor, beanDefine.initargs)
                 .matchAopList(aopList).build();
         super.put(beanDefine.name, obj);
-        mapBool.remove(name); // 创建成功
+//        mapBool.remove(name); // 创建成功
+
+        // 字段注入、方法注入
+        injectByField(obj);
+        injectByMethod(obj);
 
         return obj;
     }
@@ -426,24 +717,15 @@ public class DefaultIoc extends BaseIoc {
         return args;
     }
 
-    /**
-     * 取得Bean定义
-     * 
-     * @return Bean定义Map
-     */
+    // 取得扫描Bean定义
     @SuppressWarnings("unchecked")
-    private Map<String, BeanDefine> getBeanDefineMap() {
+    private Map<String, BeanDefine> getBeanDefineMap(String packages) {
         Map<String, BeanDefine> map = new HashMap<>();
 
-        String packages = DefaultConfig.getInstance().getString("ioc.scan");
         List<Class<?>> classlist = ScanBuilder.get().packages(packages).typeAnnotations(Aop.class, Component.class).getClasses();
         BeanDefine beanDefine;
         for ( Class<?> clas : classlist ) {
             beanDefine = getBeanDefine(clas);
-            if ( map.containsKey(beanDefine.name) ) {
-                log.error("Bean定义名称重复 {}:{}/{}", beanDefine.name, map.get(beanDefine.name).clas.getCanonicalName(), clas.getCanonicalName());
-                throw new IocException("Bean定义名称重复：" + beanDefine.name);
-            }
             map.put(beanDefine.name, beanDefine);
         }
         return map;
@@ -505,7 +787,7 @@ public class DefaultIoc extends BaseIoc {
     }
 
     /**
-     * Bea定义
+     * 注解Bea定义
      */
     private class BeanDefine {
 
@@ -516,4 +798,15 @@ public class DefaultIoc extends BaseIoc {
 
     }
 
+    /**
+     * 编码配置Bea定义
+     */
+    private class BeanConfigDefine {
+
+        private String   name;
+        private Class<?> clas;
+        private Object   clasInstance;
+        private Method   method;
+
+    }
 }

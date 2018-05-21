@@ -12,7 +12,6 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 
-import top.gotoeasy.framework.core.config.DefaultConfig;
 import top.gotoeasy.framework.core.converter.ConvertUtil;
 import top.gotoeasy.framework.core.util.CmnClass;
 import top.gotoeasy.framework.core.util.CmnResource;
@@ -42,10 +41,9 @@ public class CmnXml {
         }
     }
 
-    public static Map<String, XmlBean> getXmlBeanDefines() {
+    public static Map<String, XmlBean> getXmlBeanDefines(String fileNames) {
 
         Map<String, XmlBean> map = new HashMap<>();
-        String fileNames = DefaultConfig.getInstance().getString("ioc.config.file");
         if ( CmnString.isNotBlank(fileNames) ) {
             String[] names = fileNames.split(",");
             List<XmlBean> list;
