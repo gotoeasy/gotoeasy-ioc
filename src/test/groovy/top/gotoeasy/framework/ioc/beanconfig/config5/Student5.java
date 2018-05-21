@@ -1,20 +1,23 @@
-package top.gotoeasy.framework.ioc.testconfig.xml;
+package top.gotoeasy.framework.ioc.beanconfig.config5;
 
-public class Student {
+import top.gotoeasy.framework.ioc.annotation.Component;
+
+@Component
+public class Student5 {
 
     private int    age;
     private String phone;
     private String name;
 
-    public Student() {
+    public Student5() {
         this.name = "匿名";
     }
 
-    public Student(String name) {
+    public Student5(String name) {
         this.name = name;
     }
 
-    public Student(String name, int age) {
+    public Student5(String name, int age) {
         this.name = name;
         this.age = age;
     }

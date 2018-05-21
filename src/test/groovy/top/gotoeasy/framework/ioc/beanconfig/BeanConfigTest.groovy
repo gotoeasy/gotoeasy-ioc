@@ -7,6 +7,7 @@ import org.junit.Test
 import spock.lang.Specification
 import top.gotoeasy.framework.core.config.DefaultConfig
 import top.gotoeasy.framework.ioc.Ioc
+import top.gotoeasy.framework.ioc.beanconfig.config5.Student5
 import top.gotoeasy.framework.ioc.exception.IocException
 import top.gotoeasy.framework.ioc.impl.DefaultIoc
 
@@ -21,7 +22,7 @@ class BeanConfigTest extends Specification {
 
         Ioc ioc = new DefaultIoc();
         Map<String, Object> map = ioc.getBean("myMap")
-        map.get("cnt") == 1
+        map.get("cnt") == null
 
         Map<String, Object>  map2 = ioc.getBean("aaa")
         map2.get("cnt") == 1
@@ -53,5 +54,22 @@ class BeanConfigTest extends Specification {
         Ioc ioc = new DefaultIoc();
         then:
         thrown(IocException)
+    }
+
+    @Test
+    public void "4 单纯XML配置文件配置Bean"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config5");
+        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config5/beans.xml");
+        Ioc ioc = new DefaultIoc();
+
+        Student5 zhansan = ioc.getBean("zhangsan")
+        Student5 tom = ioc.getBean("tom")
+        Student5 student = ioc.getBean("student5")
+
+        student.getName() == "匿名"
+        tom.getName() == "tom"
+        zhansan.getName() == "张三"
     }
 }

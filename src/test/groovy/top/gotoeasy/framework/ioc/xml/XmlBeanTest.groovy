@@ -6,7 +6,7 @@ import org.junit.Test
 
 import spock.lang.Specification
 import top.gotoeasy.framework.core.config.DefaultConfig
-import top.gotoeasy.framework.ioc.testconfig.xml.Student
+import top.gotoeasy.framework.ioc.beanconfig.config4.Student
 import top.gotoeasy.framework.ioc.util.CmnIoc
 
 

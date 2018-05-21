@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ioc:beans xmlns:ioc="http://www.gotoeasy.top/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.gotoeasy.top/schema/beans gotoeasy-beans.xsd">
+
+ 	<bean id="zhangsan" class="top.gotoeasy.framework.ioc.beanconfig.config5.Student5">
+		<constructor>
+			<arg class="String" value="张三" />
+			<arg class="int" value="25" />
+		</constructor>
+		<property name="phone" class="String" value="13611112222" />
+	</bean>
+
+
+</ioc:beans>

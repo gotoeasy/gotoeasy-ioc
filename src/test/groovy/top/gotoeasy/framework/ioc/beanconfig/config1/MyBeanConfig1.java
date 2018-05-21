@@ -6,7 +6,6 @@ import java.util.Map;
 import top.gotoeasy.framework.ioc.annotation.Autowired;
 import top.gotoeasy.framework.ioc.annotation.Bean;
 import top.gotoeasy.framework.ioc.annotation.BeanConfig;
-import top.gotoeasy.framework.ioc.annotation.Component;
 
 @BeanConfig
 public class MyBeanConfig1 {
@@ -24,10 +23,8 @@ public class MyBeanConfig1 {
         //
     }
 
-    @SuppressWarnings("unchecked")
     @Bean("myMap2")
-    public Map<String, Object> myMap(MyMap myMap) {
-        myMap.put("cnt", 1);
+    public Map<String, Object> myMap(MyMap<String, Object> myMap) {
         return myMap;
     }
 
@@ -50,12 +47,6 @@ public class MyBeanConfig1 {
         map.put("cnt", 1);
 
         return map;
-    }
-
-    @SuppressWarnings({"serial", "rawtypes"})
-    @Component
-    public static class MyMap extends HashMap {
-
     }
 
 }

@@ -23,9 +23,9 @@
 	<bean id="wangwu" class="top.gotoeasy.framework.ioc.beanconfig.config4.Student">
 		<property name="phone" class="String" value="13611112222" />
 		<constructor>
-			<!-- 简单类型的属性可以直接设定值 -->
+			<!-- 简单类型的属性可以直接设定值，简单值必须指定class -->
 			<arg class="String" value="王五" />
-			<arg ref="age" />
+			<arg class="int" ref="age" />
 		</constructor>
 	</bean>
 
