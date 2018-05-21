@@ -635,6 +635,9 @@ public class DefaultIoc extends BaseIoc {
         BeanDefine beanDefine;
         for ( Class<?> clas : classlist ) {
             beanDefine = getBeanDefine(clas);
+            if ( map.containsKey(beanDefine.name) ) {
+                throw new IocException("注解配置的Bean有id重复：" + beanDefine.name);
+            }
             map.put(beanDefine.name, beanDefine);
         }
         return map;

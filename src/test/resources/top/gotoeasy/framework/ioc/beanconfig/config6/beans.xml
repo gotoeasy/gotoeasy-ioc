@@ -3,13 +3,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.gotoeasy.top/schema/beans gotoeasy-beans.xsd">
 
- 	<bean id="zhangsan" class="top.gotoeasy.framework.ioc.beanconfig.config5.Student5">
+ 	<bean id="zhangsan" class="top.gotoeasy.framework.ioc.beanconfig.config6.Student6">
 		<constructor>
 			<arg class="String" value="张三" />
 			<arg class="int" value="25" />
 		</constructor>
-		<property name="phone" class="String" value="13611112222" />
-	</bean>
+ 	</bean>
 
+ 	<bean id="zhangsan" class="String" value="zhangsan"/>
 
 </ioc:beans>

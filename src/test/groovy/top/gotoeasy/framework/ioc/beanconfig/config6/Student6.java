@@ -3,21 +3,21 @@ package top.gotoeasy.framework.ioc.beanconfig.config6;
 import top.gotoeasy.framework.ioc.annotation.Component;
 
 @Component("Jacky")
-public class Student6_1 {
+public class Student6 {
 
     private int    age;
     private String phone;
     private String name;
 
-    public Student6_1() {
+    public Student6() {
         this.name = "匿名";
     }
 
-    public Student6_1(String name) {
+    public Student6(String name) {
         this.name = name;
     }
 
-    public Student6_1(String name, int age) {
+    public Student6(String name, int age) {
         this.name = name;
         this.age = age;
     }
