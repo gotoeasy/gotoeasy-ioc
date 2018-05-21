@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://www.gotoeasy.top/schema/beans gotoeasy-beans.xsd">
 
 	<!-- 按默认构造方法创建Bean -->
-	<bean id="student" class="top.gotoeasy.framework.ioc.beanconfig.config4.Student" />
+	<bean id="student" class="top.gotoeasy.framework.ioc.beanconfig.config4.Student4" />
 
 	<!-- 简单类型 -->
 	<bean id="age" class="int" value="20" />
@@ -13,14 +13,14 @@
 	<bean id="zhangsan" ref="student" />
 
 	<!-- 按默认构造方法创建Bean，按指定属性注入 -->
-	<bean id="lisi" class="top.gotoeasy.framework.ioc.beanconfig.config4.Student">
+	<bean id="lisi" class="top.gotoeasy.framework.ioc.beanconfig.config4.Student4">
 		<property name="age" ref="age" />
 		<!-- 简单类型的属性可以直接设定值 -->
 		<property name="phone" class="String" value="13812345678" />
 	</bean>
 
 	<!-- 按指定构造方法创建Bean -->
-	<bean id="wangwu" class="top.gotoeasy.framework.ioc.beanconfig.config4.Student">
+	<bean id="wangwu" class="top.gotoeasy.framework.ioc.beanconfig.config4.Student4">
 		<property name="phone" class="String" value="13611112222" />
 		<constructor>
 			<!-- 简单类型的属性可以直接设定值，简单值必须指定class -->
@@ -30,7 +30,7 @@
 	</bean>
 
 	<!-- 按指定构造方法创建Bean，按指定属性注入 -->
-	<bean id="xiaohong" class="top.gotoeasy.framework.ioc.beanconfig.config4.Student">
+	<bean id="xiaohong" class="top.gotoeasy.framework.ioc.beanconfig.config4.Student4">
 		<constructor>
 			<arg class="String" value="小红" />
 		</constructor>

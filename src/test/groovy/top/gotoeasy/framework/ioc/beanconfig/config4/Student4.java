@@ -1,23 +1,20 @@
-package top.gotoeasy.framework.ioc.beanconfig.config5;
+package top.gotoeasy.framework.ioc.beanconfig.config4;
 
-import top.gotoeasy.framework.ioc.annotation.Component;
-
-@Component("aaa")
-public class Student5 {
+public class Student4 {
 
     private int    age;
     private String phone;
     private String name;
 
-    public Student5() {
+    public Student4() {
         this.name = "匿名";
     }
 
-    public Student5(String name) {
+    public Student4(String name) {
         this.name = name;
     }
 
-    public Student5(String name, int age) {
+    public Student4(String name, int age) {
         this.name = name;
         this.age = age;
     }

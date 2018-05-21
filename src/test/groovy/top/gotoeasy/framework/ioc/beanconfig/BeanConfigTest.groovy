@@ -7,7 +7,7 @@ import org.junit.Test
 import spock.lang.Specification
 import top.gotoeasy.framework.core.config.DefaultConfig
 import top.gotoeasy.framework.ioc.Ioc
-import top.gotoeasy.framework.ioc.beanconfig.config5.Student5
+import top.gotoeasy.framework.ioc.beanconfig.config4.Student4
 import top.gotoeasy.framework.ioc.exception.IocException
 import top.gotoeasy.framework.ioc.impl.DefaultIoc
 
@@ -60,16 +60,34 @@ class BeanConfigTest extends Specification {
     public void "4 单纯XML配置文件配置Bean"() {
 
         expect:
-        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config5");
-        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config5/beans.xml");
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config4");
+        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config4/beans.xml");
         Ioc ioc = new DefaultIoc();
 
-        Student5 zhansan = ioc.getBean("zhangsan")
-        Student5 tom = ioc.getBean("tom")
-        Student5 student = ioc.getBean("student5")
+        Student4 student = ioc.getBean("student")
+        def age = ioc.getBean("age")
+        Student4 zhansan = ioc.getBean("zhangsan")
+        Student4 lisi = ioc.getBean("lisi")
+        Student4 wangwu = ioc.getBean("wangwu")
+        Student4 xiaohong = ioc.getBean("xiaohong")
 
         student.getName() == "匿名"
-        tom.getName() == "tom"
-        zhansan.getName() == "张三"
+        age == 20
+        zhansan.getName() == "匿名"
+        lisi.getPhone() == "13812345678"
+        wangwu.getName() == "王五"
+        wangwu.getAge() == 20
+    }
+
+    @Test
+    public void "5 重复的扫描注解id"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config5");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
     }
 }
