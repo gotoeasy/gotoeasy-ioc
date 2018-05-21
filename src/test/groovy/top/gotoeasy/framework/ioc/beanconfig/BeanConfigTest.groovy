@@ -90,4 +90,18 @@ class BeanConfigTest extends Specification {
         then:
         thrown(IocException)
     }
+
+
+    @Test
+    public void "6 重复的XML配置bean id"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config6");
+        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config6/beans.xml");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
+    }
 }
