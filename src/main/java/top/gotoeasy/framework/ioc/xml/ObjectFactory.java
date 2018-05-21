@@ -25,20 +25,20 @@ public class ObjectFactory {
         return new Beans();
     }
 
-    public Beans.Bean createBeansBean() {
-        return new Beans.Bean();
+    public Beans.XmlBean createBeansBean() {
+        return new Beans.XmlBean();
     }
 
-    public Beans.Bean.Constructor createBeansBeanConstructor() {
-        return new Beans.Bean.Constructor();
+    public Beans.XmlBean.Constructor createBeansBeanConstructor() {
+        return new Beans.XmlBean.Constructor();
     }
 
-    public Beans.Bean.Property createBeansBeanProperty() {
-        return new Beans.Bean.Property();
+    public Beans.XmlBean.Property createBeansBeanProperty() {
+        return new Beans.XmlBean.Property();
     }
 
-    public Beans.Bean.Constructor.Arg createBeansBeanConstructorArg() {
-        return new Beans.Bean.Constructor.Arg();
+    public Beans.XmlBean.Constructor.Arg createBeansBeanConstructorArg() {
+        return new Beans.XmlBean.Constructor.Arg();
     }
 
 }

@@ -19,7 +19,7 @@ import top.gotoeasy.framework.core.util.CmnResource;
 import top.gotoeasy.framework.core.util.CmnString;
 import top.gotoeasy.framework.ioc.exception.IocException;
 import top.gotoeasy.framework.ioc.xml.Beans;
-import top.gotoeasy.framework.ioc.xml.Beans.Bean;
+import top.gotoeasy.framework.ioc.xml.Beans.XmlBean;
 
 public class CmnXml {
 
@@ -42,13 +42,13 @@ public class CmnXml {
         }
     }
 
-    public static Map<String, Bean> getXmlBeanDefines() {
+    public static Map<String, XmlBean> getXmlBeanDefines() {
 
-        Map<String, Bean> map = new HashMap<>();
+        Map<String, XmlBean> map = new HashMap<>();
         String fileNames = DefaultConfig.getInstance().getString("ioc.config.file");
         if ( CmnString.isNotBlank(fileNames) ) {
             String[] names = fileNames.split(",");
-            List<Bean> list;
+            List<XmlBean> list;
             for ( int i = 0; i < names.length; i++ ) {
                 list = getXmlBeans(CmnResource.getFile(names[i].trim()));
                 list.forEach(bean -> {
@@ -63,7 +63,7 @@ public class CmnXml {
         return map;
     }
 
-    public static List<Bean> getXmlBeans(File file) {
+    public static List<XmlBean> getXmlBeans(File file) {
         JAXBContext context;
         try {
             context = JAXBContext.newInstance(Beans.class);

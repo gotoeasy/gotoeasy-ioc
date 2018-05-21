@@ -6,6 +6,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -18,44 +19,45 @@ import javax.xml.bind.annotation.XmlType;
  * @since 2018/5
  * @author 青松
  */
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlType(name = "", propOrder = {"bean"})
 @XmlRootElement(name = "beans")
 public class Beans {
 
-    protected List<Beans.Bean> bean;
+    protected List<Beans.XmlBean> xmlBean;
 
-    public List<Beans.Bean> getBean() {
-        if ( bean == null ) {
-            bean = new ArrayList<>();
+    @XmlElement(name = "bean")
+    public List<Beans.XmlBean> getBean() {
+        if ( xmlBean == null ) {
+            xmlBean = new ArrayList<>();
         }
-        return this.bean;
+        return this.xmlBean;
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {"constructor", "property"})
-    public static class Bean {
+    @XmlType(name = "bean", propOrder = {"constructor", "property"})
+    public static class XmlBean {
 
-        protected Beans.Bean.Constructor    constructor;
-        protected List<Beans.Bean.Property> property;
+        protected Beans.XmlBean.Constructor       constructor;
+        protected List<Beans.XmlBean.Property> property;
         @XmlAttribute(name = "id", required = true)
-        protected String                    id;
+        protected String                          id;
         @XmlAttribute(name = "class")
-        protected String                    clazz;
+        protected String                          clazz;
         @XmlAttribute(name = "value")
-        protected String                    value;
+        protected String                          value;
         @XmlAttribute(name = "ref")
-        protected String                    ref;
+        protected String                          ref;
 
-        public Beans.Bean.Constructor getConstructor() {
+        public Beans.XmlBean.Constructor getConstructor() {
             return constructor;
         }
 
-        public void setConstructor(Beans.Bean.Constructor value) {
+        public void setConstructor(Beans.XmlBean.Constructor value) {
             this.constructor = value;
         }
 
-        public List<Beans.Bean.Property> getProperty() {
+        public List<Beans.XmlBean.Property> getProperty() {
             if ( property == null ) {
                 property = new ArrayList<>();
             }
@@ -95,12 +97,12 @@ public class Beans {
         }
 
         @XmlAccessorType(XmlAccessType.FIELD)
-        @XmlType(name = "", propOrder = {"arg"})
+        @XmlType(name = "constructor", propOrder = {"arg"})
         public static class Constructor {
 
-            protected List<Beans.Bean.Constructor.Arg> arg;
+            protected List<Beans.XmlBean.Constructor.Arg> arg;
 
-            public List<Beans.Bean.Constructor.Arg> getArg() {
+            public List<Beans.XmlBean.Constructor.Arg> getArg() {
                 if ( arg == null ) {
                     arg = new ArrayList<>();
                 }

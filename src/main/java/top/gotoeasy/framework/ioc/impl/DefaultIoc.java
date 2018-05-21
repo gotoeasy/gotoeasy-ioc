@@ -20,13 +20,14 @@ import top.gotoeasy.framework.core.reflect.ScanBuilder;
 import top.gotoeasy.framework.core.util.CmnBean;
 import top.gotoeasy.framework.core.util.CmnString;
 import top.gotoeasy.framework.ioc.annotation.Autowired;
+import top.gotoeasy.framework.ioc.annotation.Bean;
 import top.gotoeasy.framework.ioc.annotation.Component;
 import top.gotoeasy.framework.ioc.annotation.Configuration;
 import top.gotoeasy.framework.ioc.exception.IocException;
 import top.gotoeasy.framework.ioc.util.CmnXml;
-import top.gotoeasy.framework.ioc.xml.Beans.Bean;
-import top.gotoeasy.framework.ioc.xml.Beans.Bean.Constructor.Arg;
-import top.gotoeasy.framework.ioc.xml.Beans.Bean.Property;
+import top.gotoeasy.framework.ioc.xml.Beans.XmlBean;
+import top.gotoeasy.framework.ioc.xml.Beans.XmlBean.Constructor.Arg;
+import top.gotoeasy.framework.ioc.xml.Beans.XmlBean.Property;
 
 /**
  * IOC默认实现类
@@ -41,7 +42,7 @@ public class DefaultIoc extends BaseIoc {
     // @Component注解Bean
     private Map<String, BeanDefine> mapScan = null;
     // XML配置Bean
-    private Map<String, Bean>       mapXml  = null;
+    private Map<String, XmlBean>    mapXml  = null;
 
     // @Aop拦截处理对象
     private List<Object>            aopList = null;
@@ -101,17 +102,17 @@ public class DefaultIoc extends BaseIoc {
         classlist.forEach(clas -> {
             Object configObj = createInstance(clas);
             Method[] methods = clas.getDeclaredMethods();
-            top.gotoeasy.framework.ioc.annotation.Bean annoBean;
+            Bean annoBean;
             int modifies;
             for ( Method method : methods ) {
                 modifies = method.getModifiers();
-                if ( !Modifier.isPublic(modifies) || !method.isAnnotationPresent(top.gotoeasy.framework.ioc.annotation.Bean.class)
-                        || void.class.equals(method.getReturnType()) || method.getParameterCount() > 0 ) {
+                if ( !Modifier.isPublic(modifies) || !method.isAnnotationPresent(Bean.class) || void.class.equals(method.getReturnType())
+                        || method.getParameterCount() > 0 ) {
                     // 非public、没有返回值、没有@Bean、带参数的方法，都无视跳过
                     continue;
                 }
 
-                annoBean = method.getAnnotation(top.gotoeasy.framework.ioc.annotation.Bean.class);
+                annoBean = method.getAnnotation(Bean.class);
                 String name = CmnString.isNotBlank(annoBean.value()) ? annoBean.value() : method.getName();
 
                 Object obj;
@@ -195,21 +196,21 @@ public class DefaultIoc extends BaseIoc {
         mapBool.put(name, true); // 创建中
 
         // 取定义
-        Bean bean = mapXml.get(name);
+        XmlBean xmlBean = mapXml.get(name);
         Constructor<?> constructor = null;
         Object[] initargs = null;
 
-        Class<?> superclass = getXmlBeanClass(bean.getClazz(), bean.getRef());
-        if ( bean.getConstructor() != null ) {
-            List<Arg> args = bean.getConstructor().getArg();
+        Class<?> superclass = getXmlBeanClass(xmlBean.getClazz(), xmlBean.getRef());
+        if ( xmlBean.getConstructor() != null ) {
+            List<Arg> args = xmlBean.getConstructor().getArg();
             constructor = getConstructorByArgs(name, superclass, args);
             initargs = getXmlBeanInitargs(args);
         }
 
         // 创建
         Object obj;
-        if ( CmnString.isNotBlank(bean.getValue()) ) {
-            obj = CmnXml.getBeanValue(bean.getClazz(), bean.getValue());
+        if ( CmnString.isNotBlank(xmlBean.getValue()) ) {
+            obj = CmnXml.getBeanValue(xmlBean.getClazz(), xmlBean.getValue());
         } else {
             obj = EnhanceBuilder.get().setSuperclass(superclass).setConstructorArgs(constructor, initargs).matchAopList(aopList).build();
         }
@@ -256,11 +257,11 @@ public class DefaultIoc extends BaseIoc {
         } else if ( mapScan.containsKey(ref) ) {
             return mapScan.get(ref).clas;
         } else if ( mapXml.containsKey(ref) ) {
-            Bean bean = mapXml.get(ref);
-            if ( CmnString.isNotBlank(bean.getClazz()) ) {
-                return CmnXml.getBeanClass(bean.getClazz());
+            XmlBean xmlBean = mapXml.get(ref);
+            if ( CmnString.isNotBlank(xmlBean.getClazz()) ) {
+                return CmnXml.getBeanClass(xmlBean.getClazz());
             }
-            return getXmlBeanClass(bean.getClazz(), bean.getRef());
+            return getXmlBeanClass(xmlBean.getClazz(), xmlBean.getRef());
         } else {
             throw new IocException("找不到Bean定义：" + ref);
         }
