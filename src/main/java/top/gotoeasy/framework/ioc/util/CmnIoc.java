@@ -14,6 +14,7 @@ public class CmnIoc {
     private static final Ioc ioc = new DefaultIoc();
 
     private CmnIoc() {
+        // 避免被new
     }
 
     /**

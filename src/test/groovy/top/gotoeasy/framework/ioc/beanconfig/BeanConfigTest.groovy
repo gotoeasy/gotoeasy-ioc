@@ -2,6 +2,8 @@ package top.gotoeasy.framework.ioc.beanconfig
 
 import static org.junit.Assert.*
 
+import java.lang.reflect.Constructor
+
 import org.junit.Test
 
 import spock.lang.Specification
@@ -14,6 +16,11 @@ import top.gotoeasy.framework.ioc.beanconfig.config16.Aop16Before
 import top.gotoeasy.framework.ioc.beanconfig.config17.Student17
 import top.gotoeasy.framework.ioc.exception.IocException
 import top.gotoeasy.framework.ioc.impl.DefaultIoc
+import top.gotoeasy.framework.ioc.util.CmnIoc
+import top.gotoeasy.framework.ioc.util.CmnXml
+import top.gotoeasy.framework.ioc.xml.Beans
+import top.gotoeasy.framework.ioc.xml.ObjectFactory
+import top.gotoeasy.framework.ioc.xml.Beans.XmlBean
 
 
 class BeanConfigTest extends Specification {
@@ -256,6 +263,10 @@ class BeanConfigTest extends Specification {
         tom.getName() == "tom"
         aop.getStudent1301() != null;
         aop.getStudent1302() != null;
+
+        CmnIoc.getBean(Aop13Before.class).getStudent1301() != null;
+        CmnIoc.getBean("student13") != null
+        CmnIoc.getBean("student13" , Student13.class).getName() == "tom"
     }
 
 
@@ -315,7 +326,7 @@ class BeanConfigTest extends Specification {
     }
 
     @Test
-    public void "16 DefaultIoc put id重复"() {
+    public void "18 DefaultIoc put id重复"() {
 
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config18");
@@ -327,5 +338,68 @@ class BeanConfigTest extends Specification {
         ioc.put("aaa", 1)
         then:
         thrown(IocException)
+    }
+
+    @Test
+    public void "19 Bean定义的xml配置文件读取失败"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config18");
+        DefaultConfig.getInstance().set("ioc.config.file", "beans.xml");
+
+        when:
+        DefaultIoc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
+    }
+
+    @Test
+    public void "20 静态方法类调用私有构造方法，仅为满足覆盖率"() {
+
+        expect:
+        Constructor<?> constructor1 = CmnXml.class.getDeclaredConstructor()
+        constructor1.setAccessible(true)
+        Constructor<?> constructor2 = CmnIoc.class.getDeclaredConstructor()
+        constructor2.setAccessible(true)
+
+        when:
+        constructor1.newInstance()
+        then:
+        notThrown(Exception)
+
+        when:
+        constructor2.newInstance()
+        then:
+        notThrown(Exception)
+    }
+
+    @Test
+    public void "21 ObjectFactory，工具生成后未使用的类，仅单纯跑下满足覆盖率"() {
+
+        expect:
+        ObjectFactory fac = new ObjectFactory();
+        Beans beans = fac.createBeans()
+        XmlBean bean = fac.createBeansBean()
+        XmlBean.Constructor xmlConstructor = fac.createBeansBeanConstructor()
+        XmlBean.Constructor.Arg arg = fac.createBeansBeanConstructorArg()
+        arg.setClazz("String")
+        arg.setValue("tom")
+        arg.setRef(null)
+        xmlConstructor.getArg().add(arg);
+        XmlBean.Property xmlPropertyName = fac.createBeansBeanProperty()
+        xmlPropertyName.setName("name")
+        xmlPropertyName.setClazz("String")
+        xmlPropertyName.setValue("jacky")
+        XmlBean.Property xmlPropertyAge = fac.createBeansBeanProperty()
+        xmlPropertyAge.setClazz("int")
+        xmlPropertyAge.setRef("age")
+
+        bean.setConstructor(xmlConstructor)
+        bean.getProperty().add(xmlPropertyName)
+        bean.getProperty().add(xmlPropertyAge)
+        bean.setId("id")
+        bean.setClazz("")
+        bean.setRef("")
+        bean.setValue("")
     }
 }

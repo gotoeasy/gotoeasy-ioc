@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * XML标签类
  * <p>
- * 本代码用xjc命令生成
+ * 本代码经xjc命令生成后整理
  * </p>
  * 
  * @since 2018/5
@@ -38,16 +38,16 @@ public class Beans {
     @XmlType(name = "bean", propOrder = {"constructor", "property"})
     public static class XmlBean {
 
-        protected Beans.XmlBean.Constructor       constructor;
+        protected Beans.XmlBean.Constructor    constructor;
         protected List<Beans.XmlBean.Property> property;
         @XmlAttribute(name = "id", required = true)
-        protected String                          id;
+        protected String                       id;
         @XmlAttribute(name = "class")
-        protected String                          clazz;
+        protected String                       clazz;
         @XmlAttribute(name = "value")
-        protected String                          value;
+        protected String                       value;
         @XmlAttribute(name = "ref")
-        protected String                          ref;
+        protected String                       ref;
 
         public Beans.XmlBean.Constructor getConstructor() {
             return constructor;

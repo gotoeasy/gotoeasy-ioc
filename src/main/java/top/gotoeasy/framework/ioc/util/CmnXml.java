@@ -24,21 +24,8 @@ public class CmnXml {
 
     private static final Map<String, Class<?>> map = new HashMap<>();
 
-    public static void main(String[] args) {
-        JAXBContext context;
-        try {
-            context = JAXBContext.newInstance(Beans.class);
-
-            Unmarshaller shaller = context.createUnmarshaller();
-
-            shaller.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(CmnResource.getFile("xsd/gotoeasy-beans.xsd")));
-
-            JAXBElement<Beans> root = shaller.unmarshal(new StreamSource(new File("e:/000/NewFile.xml")), Beans.class);
-            Beans xmlBeans = root.getValue();
-            System.err.println(xmlBeans.getBean());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private CmnXml() {
+        // 避免被new
     }
 
     public static Map<String, XmlBean> getXmlBeanDefines(String fileNames) {

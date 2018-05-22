@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRegistry;
 /**
  * XML标签对象工厂类
  * <p>
- * 本代码用xjc命令生成
+ * 本代码经xjc命令生成后整理
  * </p>
  * 
  * @since 2018/5
