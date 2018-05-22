@@ -14,6 +14,10 @@ import top.gotoeasy.framework.ioc.beanconfig.config13.Aop13Before
 import top.gotoeasy.framework.ioc.beanconfig.config13.Student13
 import top.gotoeasy.framework.ioc.beanconfig.config16.Aop16Before
 import top.gotoeasy.framework.ioc.beanconfig.config17.Student17
+import top.gotoeasy.framework.ioc.beanconfig.config22.Student2201
+import top.gotoeasy.framework.ioc.beanconfig.config23.Student23
+import top.gotoeasy.framework.ioc.beanconfig.config24.Student24
+import top.gotoeasy.framework.ioc.beanconfig.config25.Student25
 import top.gotoeasy.framework.ioc.exception.IocException
 import top.gotoeasy.framework.ioc.impl.DefaultIoc
 import top.gotoeasy.framework.ioc.util.CmnIoc
@@ -31,6 +35,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config01");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         Ioc ioc = new DefaultIoc();
         Map<String, Object> map = ioc.getBean("myMap")
@@ -51,6 +56,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config02");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -65,6 +71,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config03");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -78,6 +85,8 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config04");
         DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config04/beans.xml");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
+
         Ioc ioc = new DefaultIoc();
 
         Student4 student = ioc.getBean("student")
@@ -101,6 +110,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config05");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -115,6 +125,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config06");
         DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config06/beans.xml");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -129,6 +140,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config07");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -144,6 +156,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config08");
         DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config08/beans.xml");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -157,6 +170,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config09");
         DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config09/beans.xml");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -171,6 +185,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config09");
         DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config09/beans2.xml");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -185,6 +200,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config09");
         DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config09/beans3.xml");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -198,6 +214,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config09");
         DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config09/beans4.xml");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -213,6 +230,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config10");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -226,6 +244,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config11");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -240,6 +259,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config12");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -254,6 +274,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config13");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         Ioc ioc = new DefaultIoc();
 
@@ -276,6 +297,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config14");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -289,6 +311,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config15");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -303,6 +326,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config16");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -317,6 +341,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config17");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         Ioc ioc = new DefaultIoc();
         Student17 student = ioc.getBean("student17")
@@ -331,6 +356,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config18");
         DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         DefaultIoc ioc = new DefaultIoc();
@@ -346,6 +372,7 @@ class IocTest extends Specification {
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config18");
         DefaultConfig.getInstance().set("ioc.config.file", "beans.xml");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
 
         when:
         DefaultIoc ioc = new DefaultIoc();
@@ -401,5 +428,65 @@ class IocTest extends Specification {
         bean.setClazz("")
         bean.setRef("")
         bean.setValue("")
+    }
+
+    @Test
+    public void "22 扫描bean循环依赖"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config22");
+        DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
+
+        when:
+        DefaultIoc ioc = new DefaultIoc();
+        ioc.getBean(Student2201.class)
+        then:
+        thrown(IocException)
+    }
+
+
+    @Test
+    public void "23 启动完全加载模式"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config23");
+        DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().set("ioc.lazyload", "false"); // 启动完全加载
+
+        when:
+        DefaultIoc ioc = new DefaultIoc();
+        ioc.getBean(Student23.class)
+        then:
+        noExceptionThrown()
+    }
+
+
+    @Test
+    public void "24 xml构造方法引用xml配置的简单值对象，可以不写class"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config24");
+        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config24/beans.xml");
+        DefaultConfig.getInstance().set("ioc.lazyload", "false"); // 启动完全加载
+
+        DefaultIoc ioc = new DefaultIoc();
+        Student24 student = ioc.getBean(Student24.class)
+        student.getAge() == 25
+    }
+
+    @Test
+    public void "25 无法创建未定义的Bean id"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config25");
+        DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
+
+        when:
+        DefaultIoc ioc = new DefaultIoc();
+        Student25 student = ioc.getBean(Student25.class)
+        then:
+        thrown(IocException)
     }
 }

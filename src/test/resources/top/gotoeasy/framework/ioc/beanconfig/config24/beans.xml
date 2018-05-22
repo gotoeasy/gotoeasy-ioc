@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ioc:beans xmlns:ioc="http://www.gotoeasy.top/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.gotoeasy.top/schema/beans gotoeasy-beans.xsd">
+
+	<bean id="age" class="int" value="25" />
+
+	<bean id="student24" class="top.gotoeasy.framework.ioc.beanconfig.config24.Student24">
+		<constructor>
+			<arg class="String" value="张三" />
+			<arg ref="age" />
+		</constructor>
+	</bean>
+
+</ioc:beans>
