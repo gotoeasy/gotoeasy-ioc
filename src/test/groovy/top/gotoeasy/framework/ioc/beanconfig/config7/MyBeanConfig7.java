@@ -14,8 +14,8 @@ public class MyBeanConfig7 {
     }
 
     @Bean
-    public Object book1(Book book) {
-        return new Object();
+    public Integer book1(Book book) {
+        return 1;
     }
 
     @Component
