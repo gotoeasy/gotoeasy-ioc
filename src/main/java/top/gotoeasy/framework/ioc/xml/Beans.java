@@ -102,7 +102,7 @@ public class Beans {
 
             protected List<Beans.XmlBean.Constructor.Arg> arg;
 
-            public List<Beans.XmlBean.Constructor.Arg> getArg() {
+            public List<Beans.XmlBean.Constructor.Arg> getArgs() {
                 if ( arg == null ) {
                     arg = new ArrayList<>();
                 }

@@ -219,7 +219,7 @@ public class DefaultIoc extends BaseIoc {
             return;
         }
 
-        List<Arg> args = xmlBean.getConstructor().getArg();
+        List<Arg> args = xmlBean.getConstructor().getArgs();
         if ( args.isEmpty() ) {
             return;
         }
@@ -383,7 +383,7 @@ public class DefaultIoc extends BaseIoc {
 
         Class<?> targetClass = getXmlBeanClass(xmlBean.getClazz(), xmlBean.getRef());
         if ( xmlBean.getConstructor() != null ) {
-            List<Arg> args = xmlBean.getConstructor().getArg();
+            List<Arg> args = xmlBean.getConstructor().getArgs();
             constructor = getConstructorByArgs(name, targetClass, args); // name用于异常消息
             initargs = getXmlBeanInitargs(args); // 参数可以有引用注入
         }

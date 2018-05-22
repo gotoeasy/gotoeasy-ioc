@@ -385,7 +385,7 @@ class BeanConfigTest extends Specification {
         arg.setClazz("String")
         arg.setValue("tom")
         arg.setRef(null)
-        xmlConstructor.getArg().add(arg);
+        xmlConstructor.getArgs().add(arg);
         XmlBean.Property xmlPropertyName = fac.createBeansBeanProperty()
         xmlPropertyName.setName("name")
         xmlPropertyName.setClazz("String")
