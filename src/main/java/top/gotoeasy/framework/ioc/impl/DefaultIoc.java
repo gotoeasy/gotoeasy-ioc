@@ -203,7 +203,7 @@ public class DefaultIoc extends BaseIoc {
             // 构造方法参数注入检查
             checkXmlBeanArgsInject(set, xmlBean, list);
             // 属性注入检查
-            List<Property> propertys = xmlBean.getProperty();
+            List<Property> propertys = xmlBean.getPropertyList();
             propertys.forEach(property -> {
                 if ( CmnString.isNotBlank(property.getRef()) && !set.contains(property.getRef()) ) {
                     list.add("属性注入找不到指定id的Bean定义:" + property.getRef() + "[xml bean id=" + xmlBean.getId() + "]");
@@ -219,7 +219,7 @@ public class DefaultIoc extends BaseIoc {
             return;
         }
 
-        List<Arg> args = xmlBean.getConstructor().getArgs();
+        List<Arg> args = xmlBean.getConstructor().getArgList();
         if ( args.isEmpty() ) {
             return;
         }
@@ -383,7 +383,7 @@ public class DefaultIoc extends BaseIoc {
 
         Class<?> targetClass = getXmlBeanClass(xmlBean.getClazz(), xmlBean.getRef());
         if ( xmlBean.getConstructor() != null ) {
-            List<Arg> args = xmlBean.getConstructor().getArgs();
+            List<Arg> args = xmlBean.getConstructor().getArgList();
             constructor = getConstructorByArgs(name, targetClass, args); // name用于异常消息
             initargs = getXmlBeanInitargs(args); // 参数可以有引用注入
         }
@@ -398,7 +398,7 @@ public class DefaultIoc extends BaseIoc {
         super.put(name, obj);
 //        mapBool.remove(name); // 创建成功
 
-        List<Property> propertys = xmlBean.getProperty();
+        List<Property> propertys = xmlBean.getPropertyList();
         propertys.forEach(property -> {
             if ( CmnString.isNotBlank(property.getRef()) ) {
                 CmnBean.setPropertyValue(obj, property.getName(), getBean(property.getRef())); // 属性可以有引用注入

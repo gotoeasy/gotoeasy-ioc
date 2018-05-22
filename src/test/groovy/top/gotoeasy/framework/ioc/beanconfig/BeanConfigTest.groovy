@@ -385,7 +385,7 @@ class BeanConfigTest extends Specification {
         arg.setClazz("String")
         arg.setValue("tom")
         arg.setRef(null)
-        xmlConstructor.getArgs().add(arg);
+        xmlConstructor.getArgList().add(arg);
         XmlBean.Property xmlPropertyName = fac.createBeansBeanProperty()
         xmlPropertyName.setName("name")
         xmlPropertyName.setClazz("String")
@@ -395,8 +395,8 @@ class BeanConfigTest extends Specification {
         xmlPropertyAge.setRef("age")
 
         bean.setConstructor(xmlConstructor)
-        bean.getProperty().add(xmlPropertyName)
-        bean.getProperty().add(xmlPropertyAge)
+        bean.getPropertyList().add(xmlPropertyName)
+        bean.getPropertyList().add(xmlPropertyAge)
         bean.setId("id")
         bean.setClazz("")
         bean.setRef("")

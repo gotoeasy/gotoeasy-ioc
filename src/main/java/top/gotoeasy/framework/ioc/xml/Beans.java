@@ -57,7 +57,7 @@ public class Beans {
             this.constructor = value;
         }
 
-        public List<Beans.XmlBean.Property> getProperty() {
+        public List<Beans.XmlBean.Property> getPropertyList() {
             if ( property == null ) {
                 property = new ArrayList<>();
             }
@@ -102,7 +102,7 @@ public class Beans {
 
             protected List<Beans.XmlBean.Constructor.Arg> arg;
 
-            public List<Beans.XmlBean.Constructor.Arg> getArgs() {
+            public List<Beans.XmlBean.Constructor.Arg> getArgList() {
                 if ( arg == null ) {
                     arg = new ArrayList<>();
                 }
