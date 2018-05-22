@@ -23,7 +23,7 @@ import top.gotoeasy.framework.ioc.xml.ObjectFactory
 import top.gotoeasy.framework.ioc.xml.Beans.XmlBean
 
 
-class BeanConfigTest extends Specification {
+class IocTest extends Specification {
 
     @Test
     public void "1 编码配置Bean，懒装载，查看log可见ccc没有初始化"() {
