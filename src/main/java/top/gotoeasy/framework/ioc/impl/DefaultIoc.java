@@ -53,8 +53,8 @@ public class DefaultIoc extends BaseIoc {
     // @Aop拦截处理对象
     private List<Object>                  aopList       = null;
 
-    // Bean创建状态
-    private Map<String, Boolean>          mapBool       = new HashMap<>();
+    // 循环依赖检查
+    private Map<String, Boolean>          mapBeanStatus = new HashMap<>();
 
     /**
      * 构造方法
@@ -71,21 +71,52 @@ public class DefaultIoc extends BaseIoc {
      */
     @Override
     public Object getBean(String name) {
+
+        Object obj = createBean(name);
+        if ( mapXml.containsKey(name) ) {
+            // 注入
+            List<Property> propertys = mapXml.get(name).getPropertyList();
+            for ( Property property : propertys ) {
+                if ( CmnString.isNotBlank(property.getRef()) ) {
+                    CmnBean.setPropertyValue(obj, property.getName(), createBean(property.getRef())); // 属性可以有引用注入
+                } else {
+                    CmnBean.setPropertyValue(obj, property.getName(), CmnXml.getBeanValue(property.getClazz(), property.getValue()));
+                }
+            }
+            mapXml.remove(name);
+        } else if ( mapScan.containsKey(name) ) {
+            // 字段注入、方法注入
+            injectByField(obj);
+            injectByMethod(obj);
+            mapScan.remove(name);
+        }
+
+        return obj;
+    }
+
+    // 按名称创建Bean对象
+    private Object createBean(String name) {
         if ( super.mapIoc.containsKey(name) ) {
             return super.getBean(name);
         }
 
+        if ( mapBeanStatus.containsKey(name) ) {
+            throw new IocException("循环依赖id:" + name);
+        }
+        mapBeanStatus.put(name, true);
+
         Object obj = null;
         if ( mapXml.containsKey(name) ) {
             obj = initXmlBean(name);
-            mapXml.remove(name);
         } else if ( mapScan.containsKey(name) ) {
             obj = initScanBean(name);
-            mapScan.remove(name);
         } else if ( mapBeanConfig.containsKey(name) ) {
             obj = initBeanConfigDefineBean(name);
-            mapBeanConfig.remove(name);
+        } else {
+            throw new IocException("无法创建未定义的Bean id:" + name);
         }
+
+        mapBeanStatus.remove(name);
         return obj;
     }
 
@@ -114,17 +145,15 @@ public class DefaultIoc extends BaseIoc {
         });
         log.trace("创建AOP对象并注入 ------ OK");
 
-//        // 编码方式配置的单纯Bean（编码负责对象的创建和注入，直接存放容器）
-//        initConfigBean();
-//
-//        // 创建Bean对象
-//        initComponentBeans();
-//
-//        // XML配置Bean的属性注入
-//        injectPropertyOfXmlBean();
-//
-//        // 扫描Bean的字段及方法注入
-//        injectFieldMethodOfScanBean();
+        if ( "true".equalsIgnoreCase(DefaultConfig.getInstance().getString("ioc.lazyload", "true")) ) {
+            log.info("当前是默认的懒加载方式（要完全加载请配置ioc.lazyload=false）");
+        } else {
+            log.info("当前是启动完全加载方式（要懒加载请配置ioc.lazyload=true）");
+            mapScan.keySet().forEach(id -> {
+                Object obj = createBean(id);
+                log.trace("Bean对象创建成功 {}:{}", id, obj);
+            });
+        }
 
     }
 
@@ -144,18 +173,19 @@ public class DefaultIoc extends BaseIoc {
                 refName = beanNameStrategy.getName(parameters[i].getType());
             }
 
-            args[i] = getBean(refName);
+            args[i] = createBean(refName);
         }
 
         Object obj;
         try {
-            obj = beanConfigDefine.method.invoke(beanConfigDefine.clasInstance, args);
+            obj = beanConfigDefine.method.invoke(beanConfigDefine.obj, args);
         } catch (Exception e) {
             throw new IocException(e);
         }
 
         // 编码负责对象的创建和注入，直接存放容器
         super.put(name, obj);
+
         return obj;
     }
 
@@ -163,9 +193,7 @@ public class DefaultIoc extends BaseIoc {
     private void checkBeanDefine() {
         Set<String> set = new HashSet<>();
         List<String> list = new ArrayList<>();
-        mapScan.forEach((id, beanDefine) -> {
-            set.add(id);
-        });
+        mapScan.forEach((id, beanDefine) -> set.add(id));
         mapXml.forEach((id, xmlBean) -> {
             if ( !set.add(id) ) {
                 list.add("Bean定义id重复:" + id);
@@ -198,7 +226,7 @@ public class DefaultIoc extends BaseIoc {
         mapXml.forEach((name, xmlBean) -> {
             // Bean定义直接引用检查
             if ( CmnString.isNotBlank(xmlBean.getRef()) && !set.contains(xmlBean.getRef()) ) {
-                list.add("找不到指定id的Bean定义:" + xmlBean.getRef() + "[xml bean id=" + xmlBean.getId() + "]");
+                list.add("找不到指定id的Bean定义:" + xmlBean.getRef() + "[xml bean id= " + xmlBean.getId() + "]");
             }
             // 构造方法参数注入检查
             checkXmlBeanArgsInject(set, xmlBean, list);
@@ -256,7 +284,6 @@ public class DefaultIoc extends BaseIoc {
     private void checkScanBeanMethodInject(Set<String> set, BeanDefine beanDefine, List<String> list) {
         Class<?> scanBeanClass = beanDefine.clas;
         Method[] methods = scanBeanClass.getDeclaredMethods();
-        String refName = null;
         for ( Method method : methods ) {
             if ( !method.isAnnotationPresent(Autowired.class) ) {
                 continue;
@@ -266,22 +293,26 @@ public class DefaultIoc extends BaseIoc {
                 list.add("方法无参数，无效的注入:" + scanBeanClass.getCanonicalName() + "." + method.getName() + "()");
             }
 
-            Parameter[] parameters = method.getParameters();
-            for ( int i = 0; i < parameters.length; i++ ) {
-                if ( method.getParameterCount() == 1 ) {
-                    refName = method.getAnnotation(Autowired.class).value();
-                }
-                if ( CmnString.isBlank(refName) && parameters[i].isAnnotationPresent(Autowired.class) ) {
-                    refName = parameters[i].getAnnotation(Autowired.class).value();
-                }
-                if ( CmnString.isBlank(refName) ) {
-                    refName = beanNameStrategy.getName(parameters[i].getType());
-                }
+            checkScanBeanMethodArgInject(set, beanDefine, method, list);
+        }
+    }
 
-                if ( !set.contains(refName) ) {
-                    list.add("方法注入找不到指定id的Bean定义:" + refName + "[" + AopUtil.getMethodDesc(scanBeanClass, method) + "]");
-                }
-                refName = null;
+    private void checkScanBeanMethodArgInject(Set<String> set, BeanDefine beanDefine, Method method, List<String> list) {
+        Parameter[] parameters = method.getParameters();
+        for ( int i = 0; i < parameters.length; i++ ) {
+            String refName = null;
+            if ( method.getParameterCount() == 1 ) {
+                refName = method.getAnnotation(Autowired.class).value();
+            }
+            if ( CmnString.isBlank(refName) && parameters[i].isAnnotationPresent(Autowired.class) ) {
+                refName = parameters[i].getAnnotation(Autowired.class).value();
+            }
+            if ( CmnString.isBlank(refName) ) {
+                refName = beanNameStrategy.getName(parameters[i].getType());
+            }
+
+            if ( !set.contains(refName) ) {
+                list.add("方法注入找不到指定id的Bean定义:" + refName + "[" + AopUtil.getMethodDesc(beanDefine.clas, method) + "]");
             }
         }
     }
@@ -351,9 +382,7 @@ public class DefaultIoc extends BaseIoc {
                     }
 
                     BeanConfigDefine beanConfigDefine = new BeanConfigDefine();
-                    beanConfigDefine.name = name;
-                    beanConfigDefine.clas = clas;
-                    beanConfigDefine.clasInstance = CmnClass.createInstance(clas, null, null);
+                    beanConfigDefine.obj = CmnClass.createInstance(clas, null, null);
                     beanConfigDefine.method = method;
 
                     map.put(name, beanConfigDefine);
@@ -371,11 +400,6 @@ public class DefaultIoc extends BaseIoc {
      * @return Bean对象
      */
     private Object initXmlBean(String name) {
-//          if ( mapBool.containsKey(name) ) {
-//            throw new IocException("Bean循环依赖无法初始化:" + name);
-//        }
-//        mapBool.put(name, true); // 创建中
-
         // 取定义
         XmlBean xmlBean = mapXml.get(name);
         Constructor<?> constructor = null;
@@ -396,16 +420,6 @@ public class DefaultIoc extends BaseIoc {
             obj = EnhanceBuilder.get().setSuperclass(targetClass).setConstructorArgs(constructor, initargs).matchAopList(aopList).build();
         }
         super.put(name, obj);
-//        mapBool.remove(name); // 创建成功
-
-        List<Property> propertys = xmlBean.getPropertyList();
-        propertys.forEach(property -> {
-            if ( CmnString.isNotBlank(property.getRef()) ) {
-                CmnBean.setPropertyValue(obj, property.getName(), getBean(property.getRef())); // 属性可以有引用注入
-            } else {
-                CmnBean.setPropertyValue(obj, property.getName(), CmnXml.getBeanValue(property.getClazz(), property.getValue()));
-            }
-        });
 
         return obj;
     }
@@ -416,7 +430,7 @@ public class DefaultIoc extends BaseIoc {
         for ( int i = 0; i < initargs.length; i++ ) {
             arg = args.get(i);
             if ( CmnString.isNotBlank(arg.getRef()) ) {
-                initargs[i] = getBean(arg.getRef());
+                initargs[i] = createBean(arg.getRef());
             } else {
                 initargs[i] = CmnXml.getBeanValue(arg.getClazz(), arg.getValue());
             }
@@ -447,18 +461,14 @@ public class DefaultIoc extends BaseIoc {
             return CmnXml.getBeanClass(clazz);
         }
 
-        return getBean(ref).getClass();
-//        if ( mapScan.containsKey(ref) ) {
-//            return mapScan.get(ref).clas;
-//        } else if ( mapXml.containsKey(ref) ) {
-//            XmlBean xmlBean = mapXml.get(ref);
-//            if ( CmnString.isNotBlank(xmlBean.getClazz()) ) {
-//                return CmnXml.getBeanClass(xmlBean.getClazz());
-//            }
-//            return getXmlBeanClass(xmlBean.getClazz(), xmlBean.getRef());
-//        } else {
-//            throw new IocException("找不到Bean定义：" + ref);
-//        }
+        if ( mapXml.containsKey(ref) ) {
+            XmlBean xmlBean = mapXml.get(ref);
+            if ( CmnString.isNotBlank(xmlBean.getClazz()) ) {
+                return CmnXml.getBeanClass(xmlBean.getClazz());
+            }
+        }
+
+        return createBean(ref).getClass();
     }
 
     /**
@@ -468,11 +478,6 @@ public class DefaultIoc extends BaseIoc {
      * @return Bean对象
      */
     private Object initScanBean(String name) {
-//        if ( mapBool.containsKey(name) ) {
-//            throw new IocException("Bean循环依赖无法初始化:" + name);
-//        }
-//        mapBool.put(name, true); // 创建中
-
         // 取定义
         BeanDefine beanDefine = mapScan.get(name);
         if ( beanDefine.constructor != null ) {
@@ -488,20 +493,15 @@ public class DefaultIoc extends BaseIoc {
                     paramBeanName = beanNameStrategy.getName(parameters[i].getType());
                 }
 
-                beanDefine.initargs[i] = getBean(paramBeanName);
+                beanDefine.initargs[i] = createBean(paramBeanName);
             }
         }
 
+        Object obj;
         // 创建
-        Object obj = EnhanceBuilder.get().setSuperclass(beanDefine.clas).setConstructorArgs(beanDefine.constructor, beanDefine.initargs)
+        obj = EnhanceBuilder.get().setSuperclass(beanDefine.clas).setConstructorArgs(beanDefine.constructor, beanDefine.initargs)
                 .matchAopList(aopList).build();
         super.put(beanDefine.name, obj);
-//        mapBool.remove(name); // 创建成功
-
-        // 字段注入、方法注入
-        injectByField(obj);
-        injectByMethod(obj);
-
         return obj;
     }
 
@@ -547,7 +547,7 @@ public class DefaultIoc extends BaseIoc {
 
                 field.setAccessible(true);
                 try {
-                    field.set(bean, getBean(refName));
+                    field.set(bean, createBean(refName));
                 } catch (Exception e) {
                     throw new IocException("字段注入失败:" + field, e);
                 }
@@ -599,7 +599,7 @@ public class DefaultIoc extends BaseIoc {
                 refName = beanNameStrategy.getName(parameters[i].getType());
             }
 
-            args[i] = getBean(refName);
+            args[i] = createBean(refName);
         }
 
         return args;
@@ -677,10 +677,8 @@ public class DefaultIoc extends BaseIoc {
      */
     private class BeanConfigDefine {
 
-        private String   name;
-        private Class<?> clas;
-        private Object   clasInstance;
-        private Method   method;
+        private Object obj;
+        private Method method;
 
     }
 }
