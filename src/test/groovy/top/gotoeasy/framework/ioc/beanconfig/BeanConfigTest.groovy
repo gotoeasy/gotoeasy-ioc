@@ -10,6 +10,8 @@ import top.gotoeasy.framework.ioc.Ioc
 import top.gotoeasy.framework.ioc.beanconfig.config04.Student4
 import top.gotoeasy.framework.ioc.beanconfig.config13.Aop13Before
 import top.gotoeasy.framework.ioc.beanconfig.config13.Student13
+import top.gotoeasy.framework.ioc.beanconfig.config16.Aop16Before
+import top.gotoeasy.framework.ioc.beanconfig.config17.Student17
 import top.gotoeasy.framework.ioc.exception.IocException
 import top.gotoeasy.framework.ioc.impl.DefaultIoc
 
@@ -192,6 +194,7 @@ class BeanConfigTest extends Specification {
 
         when:
         Ioc ioc = new DefaultIoc();
+        ioc.getBean("lisi0904")
         then:
         thrown(IocException)
     }
@@ -247,8 +250,8 @@ class BeanConfigTest extends Specification {
 
         Ioc ioc = new DefaultIoc();
 
-        Student13 tom = ioc.getBean("student13")
-        Aop13Before aop = ioc.getBean("aop13Before")
+        Student13 tom = ioc.getBean("student13" , Student13.class)
+        Aop13Before aop = ioc.getBean(Aop13Before.class)
 
         tom.getName() == "tom"
         aop.getStudent1301() != null;
@@ -279,6 +282,49 @@ class BeanConfigTest extends Specification {
         when:
         Ioc ioc = new DefaultIoc();
         ioc.getBean("student15")
+        then:
+        thrown(IocException)
+    }
+
+    @Test
+    public void "16 aop字段注入失败"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config16");
+        DefaultConfig.getInstance().remove("ioc.config.file");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        ioc.getBean("aop16Before", Aop16Before.class)
+        then:
+        thrown(IocException)
+    }
+
+    @Test
+    public void "17 扫描bean构造方法注入"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config17");
+        DefaultConfig.getInstance().remove("ioc.config.file");
+
+        Ioc ioc = new DefaultIoc();
+        Student17 student = ioc.getBean("student17")
+
+        student.getName() == "张三"
+        student.getAge() == 25
+    }
+
+    @Test
+    public void "16 DefaultIoc put id重复"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config18");
+        DefaultConfig.getInstance().remove("ioc.config.file");
+
+        when:
+        DefaultIoc ioc = new DefaultIoc();
+        ioc.put("aaa", 0)
+        ioc.put("aaa", 1)
         then:
         thrown(IocException)
     }

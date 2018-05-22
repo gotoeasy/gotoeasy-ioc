@@ -72,7 +72,7 @@ public class DefaultIoc extends BaseIoc {
     @Override
     public Object getBean(String name) {
         if ( super.mapIoc.containsKey(name) ) {
-            return super.mapIoc.get(name);
+            return super.getBean(name);
         }
 
         Object obj = null;
@@ -338,27 +338,26 @@ public class DefaultIoc extends BaseIoc {
             Bean annoBean;
             int modifies;
             for ( Method method : methods ) {
+
+                // 非public、没有返回值、没有@Bean，都无视跳过
                 modifies = method.getModifiers();
-                if ( !Modifier.isPublic(modifies) || !method.isAnnotationPresent(Bean.class) || void.class.equals(method.getReturnType()) ) {
-                    // 非public、没有返回值、没有@Bean，都无视跳过
-                    continue;
+                if ( Modifier.isPublic(modifies) && method.isAnnotationPresent(Bean.class) && !void.class.equals(method.getReturnType()) ) {
+                    annoBean = method.getAnnotation(Bean.class);
+                    String name = CmnString.isNotBlank(annoBean.value()) ? annoBean.value() : method.getName();
+
+                    if ( map.containsKey(name) ) {
+                        log.error("Bean配置有误[Bean定义id重复:{}]", name);
+                        throw new IocException("Bean id重复(" + name + ")，请检查：" + clas.getCanonicalName());
+                    }
+
+                    BeanConfigDefine beanConfigDefine = new BeanConfigDefine();
+                    beanConfigDefine.name = name;
+                    beanConfigDefine.clas = clas;
+                    beanConfigDefine.clasInstance = CmnClass.createInstance(clas, null, null);
+                    beanConfigDefine.method = method;
+
+                    map.put(name, beanConfigDefine);
                 }
-
-                annoBean = method.getAnnotation(Bean.class);
-                String name = CmnString.isNotBlank(annoBean.value()) ? annoBean.value() : method.getName();
-
-                if ( map.containsKey(name) ) {
-                    log.error("Bean配置有误[Bean定义id重复:{}]", name);
-                    throw new IocException("Bean id重复(" + name + ")，请检查：" + clas.getCanonicalName());
-                }
-
-                BeanConfigDefine beanConfigDefine = new BeanConfigDefine();
-                beanConfigDefine.name = name;
-                beanConfigDefine.clas = clas;
-                beanConfigDefine.clasInstance = CmnClass.createInstance(clas, null, null);
-                beanConfigDefine.method = method;
-
-                map.put(name, beanConfigDefine);
             }
         });
 
@@ -544,10 +543,6 @@ public class DefaultIoc extends BaseIoc {
                 String refName = anno.value();
                 if ( CmnString.isBlank(refName) ) {
                     refName = beanNameStrategy.getName(field.getType());
-                }
-
-                if ( !mapScan.containsKey(refName) && mapXml.containsKey(refName) ) {
-                    throw new IocException("找不到指定名称的Bean对象:" + refName);
                 }
 
                 field.setAccessible(true);

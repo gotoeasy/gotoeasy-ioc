@@ -59,7 +59,7 @@ public class BaseIoc implements Ioc {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getBean(String name, Class<T> claz) {
-        return (T)mapIoc.get(name);
+        return (T)getBean(name);
     }
 
     /**
