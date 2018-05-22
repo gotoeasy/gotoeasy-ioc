@@ -134,4 +134,96 @@ class BeanConfigTest extends Specification {
         then:
         thrown(IocException)
     }
+
+    @Test
+    public void "9-1 xml的bean引用不存在的id"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config09");
+        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config09/beans.xml");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
+    }
+
+
+    @Test
+    public void "9-2 xml的bean构造方法引用不存在的id"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config09");
+        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config09/beans2.xml");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
+    }
+
+
+    @Test
+    public void "9-3 xml的属性注入引用不存在的id"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config09");
+        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config09/beans3.xml");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
+    }
+
+    @Test
+    public void "9-4 XML的Bean配置找不到相应的构造方法"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config09");
+        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config09/beans4.xml");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
+    }
+
+
+    @Test
+    public void "10 编码bean的方法参数引用不存在的id"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config10");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
+    }
+
+    @Test
+    public void "11 扫描bean的各种错误配置检查"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config11");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
+    }
+
+
+    @Test
+    public void "12 扫描bean不支持多个构造方法同时注入"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config12");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
+    }
 }

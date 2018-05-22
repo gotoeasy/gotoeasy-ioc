@@ -195,6 +195,10 @@ public class DefaultIoc extends BaseIoc {
     // 检查XML配置Bean的属性注入是否注入未定义id
     private void checkXmlBeanPropertyInject(Set<String> set, List<String> list) {
         mapXml.forEach((name, xmlBean) -> {
+            // Bean定义直接引用检查
+            if ( CmnString.isNotBlank(xmlBean.getRef()) && !set.contains(xmlBean.getRef()) ) {
+                list.add("找不到指定id的Bean定义:" + xmlBean.getRef() + "[xml bean id=" + xmlBean.getId() + "]");
+            }
             // 构造方法参数注入检查
             checkXmlBeanArgsInject(set, xmlBean, list);
             // 属性注入检查

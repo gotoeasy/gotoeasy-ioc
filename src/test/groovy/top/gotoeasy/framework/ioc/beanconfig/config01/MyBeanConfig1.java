@@ -19,8 +19,9 @@ public class MyBeanConfig1 {
         // 无返回值不起作用
     }
 
-    public void getMyObject3() {
-        //
+    public Object getMyObject3() {
+        // 非@Bean方法不起作用
+        return new Object();
     }
 
     @Bean("myMap2")
