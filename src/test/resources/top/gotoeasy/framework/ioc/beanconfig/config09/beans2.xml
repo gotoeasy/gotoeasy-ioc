@@ -3,12 +3,12 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.gotoeasy.top/schema/beans gotoeasy-beans.xsd">
 
-	<bean id="zhangsan" class="top.gotoeasy.framework.ioc.beanconfig.config06.Student6">
+	<bean id="zhangsan" class="top.gotoeasy.framework.ioc.beanconfig.config09.Student9">
 		<constructor>
 		</constructor>
  	</bean>
 
-	<bean id="lisi" ref="top.gotoeasy.framework.ioc.beanconfig.config06.Student6">
+	<bean id="lisi" ref="top.gotoeasy.framework.ioc.beanconfig.config09.Student9">
 		<constructor>
 			<arg class="String" value="张三" />
 			<arg class="int" ref="xxx" />

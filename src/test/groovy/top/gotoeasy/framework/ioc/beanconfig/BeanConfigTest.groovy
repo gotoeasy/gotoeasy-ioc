@@ -8,6 +8,8 @@ import spock.lang.Specification
 import top.gotoeasy.framework.core.config.DefaultConfig
 import top.gotoeasy.framework.ioc.Ioc
 import top.gotoeasy.framework.ioc.beanconfig.config04.Student4
+import top.gotoeasy.framework.ioc.beanconfig.config13.Aop13Before
+import top.gotoeasy.framework.ioc.beanconfig.config13.Student13
 import top.gotoeasy.framework.ioc.exception.IocException
 import top.gotoeasy.framework.ioc.impl.DefaultIoc
 
@@ -19,6 +21,7 @@ class BeanConfigTest extends Specification {
 
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config01");
+        DefaultConfig.getInstance().remove("ioc.config.file");
 
         Ioc ioc = new DefaultIoc();
         Map<String, Object> map = ioc.getBean("myMap")
@@ -38,6 +41,7 @@ class BeanConfigTest extends Specification {
 
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config02");
+        DefaultConfig.getInstance().remove("ioc.config.file");
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -51,6 +55,7 @@ class BeanConfigTest extends Specification {
 
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config03");
+        DefaultConfig.getInstance().remove("ioc.config.file");
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -86,6 +91,7 @@ class BeanConfigTest extends Specification {
 
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config05");
+        DefaultConfig.getInstance().remove("ioc.config.file");
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -113,6 +119,7 @@ class BeanConfigTest extends Specification {
 
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config07");
+        DefaultConfig.getInstance().remove("ioc.config.file");
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -195,6 +202,7 @@ class BeanConfigTest extends Specification {
 
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config10");
+        DefaultConfig.getInstance().remove("ioc.config.file");
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -207,6 +215,7 @@ class BeanConfigTest extends Specification {
 
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config11");
+        DefaultConfig.getInstance().remove("ioc.config.file");
 
         when:
         Ioc ioc = new DefaultIoc();
@@ -220,9 +229,56 @@ class BeanConfigTest extends Specification {
 
         expect:
         DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config12");
+        DefaultConfig.getInstance().remove("ioc.config.file");
 
         when:
         Ioc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
+    }
+
+
+    @Test
+    public void "13 aop注入"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config13");
+        DefaultConfig.getInstance().remove("ioc.config.file");
+
+        Ioc ioc = new DefaultIoc();
+
+        Student13 tom = ioc.getBean("student13")
+        Aop13Before aop = ioc.getBean("aop13Before")
+
+        tom.getName() == "tom"
+        aop.getStudent1301() != null;
+        aop.getStudent1302() != null;
+    }
+
+
+    @Test
+    public void "14 扫描bean字段注入不存在的id"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config14");
+        DefaultConfig.getInstance().remove("ioc.config.file");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        then:
+        thrown(IocException)
+    }
+
+    @Test
+    public void "15 扫描bean方法注入失败"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config15");
+        DefaultConfig.getInstance().remove("ioc.config.file");
+
+        when:
+        Ioc ioc = new DefaultIoc();
+        ioc.getBean("student15")
         then:
         thrown(IocException)
     }

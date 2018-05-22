@@ -21,6 +21,7 @@ import top.gotoeasy.framework.core.log.Log;
 import top.gotoeasy.framework.core.log.LoggerFactory;
 import top.gotoeasy.framework.core.reflect.ScanBuilder;
 import top.gotoeasy.framework.core.util.CmnBean;
+import top.gotoeasy.framework.core.util.CmnClass;
 import top.gotoeasy.framework.core.util.CmnString;
 import top.gotoeasy.framework.ioc.annotation.Autowired;
 import top.gotoeasy.framework.ioc.annotation.Bean;
@@ -219,7 +220,7 @@ public class DefaultIoc extends BaseIoc {
         }
 
         List<Arg> args = xmlBean.getConstructor().getArg();
-        if ( args == null ) {
+        if ( args.isEmpty() ) {
             return;
         }
 
@@ -354,7 +355,7 @@ public class DefaultIoc extends BaseIoc {
                 BeanConfigDefine beanConfigDefine = new BeanConfigDefine();
                 beanConfigDefine.name = name;
                 beanConfigDefine.clas = clas;
-                beanConfigDefine.clasInstance = createInstance(clas);
+                beanConfigDefine.clasInstance = CmnClass.createInstance(clas, null, null);
                 beanConfigDefine.method = method;
 
                 map.put(name, beanConfigDefine);
@@ -515,7 +516,7 @@ public class DefaultIoc extends BaseIoc {
 
         mapScan.forEach((name, beanDefine) -> {
             if ( beanDefine.clas.isAnnotationPresent(Aop.class) ) {
-                Object obj = createInstance(beanDefine.clas);
+                Object obj = CmnClass.createInstance(beanDefine.clas, null, null);
                 super.put(beanDefine.name, obj);
                 list.add(obj);
             }
@@ -662,23 +663,6 @@ public class DefaultIoc extends BaseIoc {
         }
 
         return autowiredConstructor;
-    }
-
-    /**
-     * 创建对象
-     * 
-     * @param clas 类
-     * @return 对象
-     */
-    private Object createInstance(Class<?> clas) {
-
-        // 无构造方法注入时，按默认构造方法创建对象
-        try {
-            return clas.newInstance();
-        } catch (Exception e) {
-            throw new IocException(e);
-        }
-
     }
 
     /**
