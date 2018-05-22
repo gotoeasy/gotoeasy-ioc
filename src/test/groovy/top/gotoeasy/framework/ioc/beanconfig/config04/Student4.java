@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.ioc.beanconfig.config4;
+package top.gotoeasy.framework.ioc.beanconfig.config04;
 
 public class Student4 {
 

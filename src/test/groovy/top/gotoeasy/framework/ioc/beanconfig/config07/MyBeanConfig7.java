@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.ioc.beanconfig.config7;
+package top.gotoeasy.framework.ioc.beanconfig.config07;
 
 import top.gotoeasy.framework.ioc.annotation.Autowired;
 import top.gotoeasy.framework.ioc.annotation.Bean;

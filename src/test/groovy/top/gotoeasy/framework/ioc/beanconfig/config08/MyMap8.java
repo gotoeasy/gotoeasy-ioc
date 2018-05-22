@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.ioc.beanconfig.config8;
+package top.gotoeasy.framework.ioc.beanconfig.config08;
 
 import java.util.HashMap;
 

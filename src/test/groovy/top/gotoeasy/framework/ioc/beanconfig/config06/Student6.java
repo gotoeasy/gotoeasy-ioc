@@ -1,4 +1,4 @@
-package top.gotoeasy.framework.ioc.beanconfig.config6;
+package top.gotoeasy.framework.ioc.beanconfig.config06;
 
 import top.gotoeasy.framework.ioc.annotation.Component;
 
