@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ioc:beans xmlns:ioc="http://www.gotoeasy.top/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.gotoeasy.top/schema/beans gotoeasy-beans.xsd">
+
+	<bean id="cnt" class="int" value="100" />
+	
+	<bean id="xmlBean2601" class="top.gotoeasy.framework.ioc.beanconfig.config26.Bean2601">
+		<property name="bean" ref="bean2602" />
+		<property name="cnt" ref="cnt" />
+	</bean>
+	
+	<bean id="xmlBean2602" class="top.gotoeasy.framework.ioc.beanconfig.config26.Bean2602">
+		<constructor>
+			<arg ref="xmlBean2601" />
+		</constructor>
+		<property name="bean1" ref="bean2601" />
+		<property name="cnt" ref="cnt" />
+	</bean>
+
+</ioc:beans>

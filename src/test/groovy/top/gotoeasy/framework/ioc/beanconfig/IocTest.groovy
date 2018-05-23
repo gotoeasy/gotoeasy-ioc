@@ -18,6 +18,8 @@ import top.gotoeasy.framework.ioc.beanconfig.config22.Student2201
 import top.gotoeasy.framework.ioc.beanconfig.config23.Student23
 import top.gotoeasy.framework.ioc.beanconfig.config24.Student24
 import top.gotoeasy.framework.ioc.beanconfig.config25.Student25
+import top.gotoeasy.framework.ioc.beanconfig.config26.Bean2601
+import top.gotoeasy.framework.ioc.beanconfig.config26.Bean2602
 import top.gotoeasy.framework.ioc.beanconfig.config99.Book99
 import top.gotoeasy.framework.ioc.beanconfig.config99.Car99
 import top.gotoeasy.framework.ioc.beanconfig.config99.School99
@@ -526,5 +528,44 @@ class IocTest extends Specification {
         Student25 student = ioc.getBean(Student25.class)
         then:
         thrown(IocException)
+    }
+
+
+    @Test
+    def void "26 相互依赖但不是循环依赖，要跑起来"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config26");
+        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config26/beans.xml");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
+
+        DefaultIoc ioc = new DefaultIoc();
+        Bean2601 bean2601 = ioc.getBean(Bean2601.class)
+        Bean2602 bean2602 = ioc.getBean(Bean2602.class)
+        Bean2601 xmlBean2601 = ioc.getBean("xmlBean2601")
+        Bean2602 xmlBean2602 = ioc.getBean("xmlBean2602")
+
+        bean2601.getBean() != null
+        bean2601.getBean().getCnt() == 100
+        bean2601.getBean2() != null
+        bean2601.getBean2().getCnt() == 100
+        bean2601.getCnt() == 100
+
+        bean2602.getBean() != null
+        bean2602.getBean().getCnt() == 100
+        bean2602.getBean1() != null
+        bean2602.getBean1().getCnt() == 100
+        bean2602.getCnt() == 100
+
+        xmlBean2601.getBean() != null
+        xmlBean2601.getBean().getCnt() == 100
+        xmlBean2601.getBean2() == null
+        xmlBean2601.getCnt() == 100
+
+        xmlBean2602.getBean() != null
+        xmlBean2602.getBean().getCnt() == 100
+        xmlBean2602.getBean1() != null
+        xmlBean2602.getBean1().getCnt() == 100
+        xmlBean2602.getCnt() == 100
     }
 }

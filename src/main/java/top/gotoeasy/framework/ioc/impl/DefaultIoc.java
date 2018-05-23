@@ -468,7 +468,11 @@ public class DefaultIoc extends BaseIoc {
             }
         }
 
-        return createBean(ref).getClass();
+        Class<?> clas = createBean(ref).getClass();
+        while ( Enhance.class.isAssignableFrom(clas) ) {
+            clas = clas.getSuperclass();
+        }
+        return clas;
     }
 
     /**
