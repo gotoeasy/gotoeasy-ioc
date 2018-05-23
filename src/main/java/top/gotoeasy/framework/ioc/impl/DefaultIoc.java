@@ -173,7 +173,7 @@ public class DefaultIoc extends BaseIoc {
                 refName = beanNameStrategy.getName(parameters[i].getType());
             }
 
-            args[i] = createBean(refName);
+            args[i] = getBean(refName);
         }
 
         Object obj;

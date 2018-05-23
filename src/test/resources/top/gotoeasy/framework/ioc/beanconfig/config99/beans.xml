@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ioc:beans xmlns:ioc="http://www.gotoeasy.top/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.gotoeasy.top/schema/beans gotoeasy-beans.xsd">
+
+	<bean id="teacherZhang" class="top.gotoeasy.framework.ioc.beanconfig.config99.Teacher99">
+		<property name="name" class="String" value="张老师" />
+		<property name="school" ref="school99" />
+	</bean>
+
+	<bean id="teacherLi" class="top.gotoeasy.framework.ioc.beanconfig.config99.Teacher99">
+		<property name="name" class="String" value="李老师" />
+		<property name="school" ref="school99" />
+	</bean>
+	
+	
+	<bean id="tom" class="top.gotoeasy.framework.ioc.beanconfig.config99.Student99">
+		<constructor>
+			<arg class="String" value="Tom" />
+			<arg class="int" value="25" />
+		</constructor>
+		<property name="school" ref="school99" />
+	</bean>
+	
+	<bean id="jacky" class="top.gotoeasy.framework.ioc.beanconfig.config99.Student99">
+		<constructor>
+			<arg class="String" value="Jacky" />
+		</constructor>
+		<property name="age" class="int" value="26" />
+		<property name="school" ref="school99" />
+	</bean>
+	
+	<bean id="zhangsan" class="top.gotoeasy.framework.ioc.beanconfig.config99.Student99">
+		<property name="name" class="String" value="张某人" />
+		<property name="age" class="int" value="26" />
+		<property name="teacher" ref="teacherLiu" />
+	</bean>
+	
+
+</ioc:beans>
