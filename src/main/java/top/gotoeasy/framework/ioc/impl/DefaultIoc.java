@@ -115,32 +115,7 @@ public class DefaultIoc extends BaseIoc {
             }
         }
 
-        return obj;
-    }
-
-    // 按名称创建Bean对象
-    private Object createBean(String name) {
-        if ( super.mapIoc.containsKey(name) ) {
-            return super.getBean(name);
-        }
-
-        if ( mapBeanStatus.containsKey(name) ) {
-            throw new IocException("循环依赖id:" + name);
-        }
-        mapBeanStatus.put(name, true);
-
-        Object obj = null;
-        if ( mapXml.containsKey(name) ) {
-            obj = initXmlBean(name);
-        } else if ( mapScan.containsKey(name) ) {
-            obj = initScanBean(name);
-        } else if ( mapBeanConfig.containsKey(name) ) {
-            obj = initBeanConfigDefineBean(name);
-        } else {
-            throw new IocException("无法创建未定义的Bean id:" + name);
-        }
-
-        mapBeanStatus.remove(name);
+        log.debug("Bean对象创建成功 {}:{}", name, obj);
         return obj;
     }
 
@@ -173,12 +148,39 @@ public class DefaultIoc extends BaseIoc {
             log.info("当前是默认的懒加载方式（要完全加载请配置ioc.lazyload=false）");
         } else {
             log.info("当前是启动完全加载方式（要懒加载请配置ioc.lazyload=true）");
-            mapScan.keySet().forEach(id -> {
-                Object obj = createBean(id);
-                log.trace("Bean对象创建成功 {}:{}", id, obj);
-            });
+            List<String> list = new ArrayList<>();
+            list.addAll(beanNameSet);
+            for ( String id : list ) {
+                getBean(id);
+            }
         }
 
+    }
+
+    // 按名称创建Bean对象
+    private Object createBean(String name) {
+        if ( super.mapIoc.containsKey(name) ) {
+            return super.getBean(name);
+        }
+
+        if ( mapBeanStatus.containsKey(name) ) {
+            throw new IocException("循环依赖id:" + name);
+        }
+        mapBeanStatus.put(name, true);
+
+        Object obj = null;
+        if ( mapXml.containsKey(name) ) {
+            obj = initXmlBean(name);
+        } else if ( mapScan.containsKey(name) ) {
+            obj = initScanBean(name);
+        } else if ( mapBeanConfig.containsKey(name) ) {
+            obj = initBeanConfigDefineBean(name);
+        } else {
+            throw new IocException("无法创建未定义的Bean id:" + name);
+        }
+
+        mapBeanStatus.remove(name);
+        return obj;
     }
 
     // 创建编码方式配置的Bean（编码负责对象的创建和注入，直接存放容器）

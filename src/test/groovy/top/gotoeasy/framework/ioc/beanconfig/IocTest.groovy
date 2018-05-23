@@ -573,4 +573,47 @@ class IocTest extends Specification {
         bean2603.getBean2604().getBean2605() != null
 
     }
+
+
+    @Test
+    def void "26-2 相互依赖但不是循环依赖，要跑起来-启动完全加载方式"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config26");
+        DefaultConfig.getInstance().set("ioc.config.file", "top/gotoeasy/framework/ioc/beanconfig/config26/beans.xml");
+        DefaultConfig.getInstance().set("ioc.lazyload", "0"); // 启动完全加载方式
+
+        DefaultIoc ioc = new DefaultIoc();
+        Bean2601 bean2601 = ioc.getBean(Bean2601.class)
+        Bean2602 bean2602 = ioc.getBean(Bean2602.class)
+        Bean2601 xmlBean2601 = ioc.getBean("xmlBean2601")
+        Bean2602 xmlBean2602 = ioc.getBean("xmlBean2602")
+
+        bean2601.getBean() != null
+        bean2601.getBean().getCnt() == 100
+        bean2601.getBean2() != null
+        bean2601.getBean2().getCnt() == 100
+        bean2601.getCnt() == 100
+
+        bean2602.getBean() != null
+        bean2602.getBean().getCnt() == 100
+        bean2602.getBean1() != null
+        bean2602.getBean1().getCnt() == 100
+        bean2602.getCnt() == 100
+
+        xmlBean2601.getBean() != null
+        xmlBean2601.getBean().getCnt() == 100
+        xmlBean2601.getBean2() == null
+        xmlBean2601.getCnt() == 100
+
+        xmlBean2602.getBean() != null
+        xmlBean2602.getBean().getCnt() == 100
+        xmlBean2602.getBean1() != null
+        xmlBean2602.getBean1().getCnt() == 100
+        xmlBean2602.getCnt() == 100
+
+        Bean2603 bean2603 = ioc.getBean("xmlBean2603")
+        bean2603.getBean2604().getBean2605() != null
+
+    }
 }
