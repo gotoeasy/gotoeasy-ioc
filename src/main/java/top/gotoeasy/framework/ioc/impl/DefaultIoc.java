@@ -52,9 +52,10 @@ public class DefaultIoc extends BaseIoc {
 
     // @Aop拦截处理对象
     private List<Object>                  aopList       = null;
-
     // 循环依赖检查
     private Map<String, Boolean>          mapBeanStatus = new HashMap<>();
+    // 全体Bean名（启动时存入用来判断是否重复等，每创建完一个删除相应名称用来判断是否全部创建完成）
+    private Set<String>                   beanNameSet   = new HashSet<>();
 
     /**
      * 构造方法
@@ -72,8 +73,13 @@ public class DefaultIoc extends BaseIoc {
     @Override
     public Object getBean(String name) {
 
+        if ( beanNameSet == null ) {
+            return super.getBean(name);
+        }
+
         Object obj = createBean(name);
-        if ( mapXml.containsKey(name) ) {
+        if ( mapXml != null && mapXml.containsKey(name) ) {
+            // 删除以避免重复注入
             XmlBean xmlBean = mapXml.remove(name);
 
             // 注入
@@ -85,12 +91,28 @@ public class DefaultIoc extends BaseIoc {
                     CmnBean.setPropertyValue(obj, property.getName(), CmnXml.getBeanValue(property.getClazz(), property.getValue()));
                 }
             }
-        } else if ( mapScan.containsKey(name) ) {
+
+        } else if ( mapScan != null && mapScan.containsKey(name) ) {
+            // 删除以避免重复注入
             mapScan.remove(name);
 
             // 字段注入、方法注入
             injectByField(obj);
             injectByMethod(obj);
+        }
+
+        // 全部初始化完成时，清空全局变量
+        if ( beanNameSet != null ) {
+            beanNameSet.remove(name);
+            if ( beanNameSet.isEmpty() ) {
+                log.trace("全部Bean已初始化完成，清空全局变量");
+                mapScan = null;
+                mapXml = null;
+                mapBeanConfig = null;
+                aopList = null;
+                mapBeanStatus = null;
+                beanNameSet = null;
+            }
         }
 
         return obj;
@@ -193,49 +215,47 @@ public class DefaultIoc extends BaseIoc {
 
     // 检查Bean的id是否有重复、是否依赖未定义的id、是否循环依赖
     private void checkBeanDefine() {
-        Set<String> set = new HashSet<>();
         List<String> list = new ArrayList<>();
-        mapScan.forEach((id, beanDefine) -> set.add(id));
+        mapScan.forEach((id, beanDefine) -> beanNameSet.add(id));
         mapXml.forEach((id, xmlBean) -> {
-            if ( !set.add(id) ) {
+            if ( !beanNameSet.add(id) ) {
                 list.add("Bean定义id重复:" + id);
             }
         });
         mapBeanConfig.forEach((id, beanConfigDefine) -> {
-            if ( !set.add(id) ) {
+            if ( !beanNameSet.add(id) ) {
                 list.add("Bean定义id重复:" + id);
             }
         });
 
         // 检查注入是否正确
         mapScan.forEach((id, beanDefine) -> {
-            checkScanBeanArgsInject(set, beanDefine, list);
-            checkScanBeanFieldInject(set, beanDefine, list);
-            checkScanBeanMethodInject(set, beanDefine, list);
+            checkScanBeanArgsInject(beanDefine, list);
+            checkScanBeanFieldInject(beanDefine, list);
+            checkScanBeanMethodInject(beanDefine, list);
         });
-        mapBeanConfig.forEach((id, beanConfigDefine) -> checkBeanConfigMethodArgsInject(set, beanConfigDefine.method, list));
-        checkXmlBeanPropertyInject(set, list);
+        mapBeanConfig.forEach((id, beanConfigDefine) -> checkBeanConfigMethodArgsInject(beanConfigDefine.method, list));
+        checkXmlBeanPropertyInject(list);
         if ( !list.isEmpty() ) {
             log.error("Bean配置有误{}", list);
             throw new IocException("Bean配置有误:" + list.toString());
         }
 
-        // 检查是否循环
     }
 
     // 检查XML配置Bean的属性注入是否注入未定义id
-    private void checkXmlBeanPropertyInject(Set<String> set, List<String> list) {
+    private void checkXmlBeanPropertyInject(List<String> list) {
         mapXml.forEach((name, xmlBean) -> {
             // Bean定义直接引用检查
-            if ( CmnString.isNotBlank(xmlBean.getRef()) && !set.contains(xmlBean.getRef()) ) {
+            if ( CmnString.isNotBlank(xmlBean.getRef()) && !beanNameSet.contains(xmlBean.getRef()) ) {
                 list.add("找不到指定id的Bean定义:" + xmlBean.getRef() + "[xml bean id= " + xmlBean.getId() + "]");
             }
             // 构造方法参数注入检查
-            checkXmlBeanArgsInject(set, xmlBean, list);
+            checkXmlBeanArgsInject(xmlBean, list);
             // 属性注入检查
             List<Property> propertys = xmlBean.getPropertyList();
             propertys.forEach(property -> {
-                if ( CmnString.isNotBlank(property.getRef()) && !set.contains(property.getRef()) ) {
+                if ( CmnString.isNotBlank(property.getRef()) && !beanNameSet.contains(property.getRef()) ) {
                     list.add("属性注入找不到指定id的Bean定义:" + property.getRef() + "[xml bean id=" + xmlBean.getId() + "]");
                 }
             });
@@ -243,7 +263,7 @@ public class DefaultIoc extends BaseIoc {
         });
     }
 
-    private void checkXmlBeanArgsInject(Set<String> set, XmlBean xmlBean, List<String> list) {
+    private void checkXmlBeanArgsInject(XmlBean xmlBean, List<String> list) {
         // 构造方法参数注入检查
         if ( xmlBean.getConstructor() == null ) {
             return;
@@ -256,7 +276,7 @@ public class DefaultIoc extends BaseIoc {
 
         for ( int i = 0; i < args.size(); i++ ) {
             Arg arg = args.get(i);
-            if ( CmnString.isNotBlank(arg.getRef()) && !set.contains(arg.getRef()) ) {
+            if ( CmnString.isNotBlank(arg.getRef()) && !beanNameSet.contains(arg.getRef()) ) {
                 list.add("构造方法参数注入找不到指定id的Bean定义:" + arg.getRef() + "[xml bean id=" + xmlBean.getId() + "]");
             }
         }
@@ -264,7 +284,7 @@ public class DefaultIoc extends BaseIoc {
     }
 
     // 检查扫描Bean的方法注入是否注入未定义id
-    private void checkBeanConfigMethodArgsInject(Set<String> set, Method method, List<String> list) {
+    private void checkBeanConfigMethodArgsInject(Method method, List<String> list) {
         String refName = null;
         Parameter[] parameters = method.getParameters();
         for ( int i = 0; i < parameters.length; i++ ) {
@@ -275,7 +295,7 @@ public class DefaultIoc extends BaseIoc {
                 refName = beanNameStrategy.getName(parameters[i].getType());
             }
 
-            if ( !set.contains(refName) ) {
+            if ( !beanNameSet.contains(refName) ) {
                 list.add("方法注入找不到指定id的Bean定义:" + refName + "[" + AopUtil.getMethodDesc(method.getDeclaringClass(), method) + "]");
             }
             refName = null;
@@ -283,7 +303,7 @@ public class DefaultIoc extends BaseIoc {
     }
 
     // 检查扫描Bean的方法注入是否注入未定义id
-    private void checkScanBeanMethodInject(Set<String> set, BeanDefine beanDefine, List<String> list) {
+    private void checkScanBeanMethodInject(BeanDefine beanDefine, List<String> list) {
         Class<?> scanBeanClass = beanDefine.clas;
         Method[] methods = scanBeanClass.getDeclaredMethods();
         for ( Method method : methods ) {
@@ -295,11 +315,11 @@ public class DefaultIoc extends BaseIoc {
                 list.add("方法无参数，无效的注入:" + scanBeanClass.getCanonicalName() + "." + method.getName() + "()");
             }
 
-            checkScanBeanMethodArgInject(set, beanDefine, method, list);
+            checkScanBeanMethodArgInject(beanDefine, method, list);
         }
     }
 
-    private void checkScanBeanMethodArgInject(Set<String> set, BeanDefine beanDefine, Method method, List<String> list) {
+    private void checkScanBeanMethodArgInject(BeanDefine beanDefine, Method method, List<String> list) {
         Parameter[] parameters = method.getParameters();
         for ( int i = 0; i < parameters.length; i++ ) {
             String refName = null;
@@ -313,14 +333,14 @@ public class DefaultIoc extends BaseIoc {
                 refName = beanNameStrategy.getName(parameters[i].getType());
             }
 
-            if ( !set.contains(refName) ) {
+            if ( !beanNameSet.contains(refName) ) {
                 list.add("方法注入找不到指定id的Bean定义:" + refName + "[" + AopUtil.getMethodDesc(beanDefine.clas, method) + "]");
             }
         }
     }
 
     // 检查扫描Bean的构造方法参数是否注入未定义id
-    private void checkScanBeanArgsInject(Set<String> set, BeanDefine beanDefine, List<String> list) {
+    private void checkScanBeanArgsInject(BeanDefine beanDefine, List<String> list) {
         if ( beanDefine.constructor == null ) {
             return;
         }
@@ -337,7 +357,7 @@ public class DefaultIoc extends BaseIoc {
                 paramBeanName = beanNameStrategy.getName(parameters[i].getType());
             }
 
-            if ( !set.contains(paramBeanName) ) {
+            if ( !beanNameSet.contains(paramBeanName) ) {
                 list.add("构造方法参数注入找不到指定id的Bean定义:" + paramBeanName + "[" + beanDefine.clas.getCanonicalName() + "]");
             }
         }
@@ -345,7 +365,7 @@ public class DefaultIoc extends BaseIoc {
     }
 
     // 检查扫描Bean的字段注入是否注入未定义id
-    private void checkScanBeanFieldInject(Set<String> set, BeanDefine beanDefine, List<String> list) {
+    private void checkScanBeanFieldInject(BeanDefine beanDefine, List<String> list) {
         Field[] fields = beanDefine.clas.getDeclaredFields();
         for ( Field field : fields ) {
             if ( field.isAnnotationPresent(Autowired.class) ) {
@@ -354,7 +374,7 @@ public class DefaultIoc extends BaseIoc {
                 if ( CmnString.isBlank(refName) ) {
                     refName = beanNameStrategy.getName(field.getType());
                 }
-                if ( !set.contains(refName) ) {
+                if ( !beanNameSet.contains(refName) ) {
                     list.add("字段注入找不到指定id的Bean定义:" + refName + "[" + beanDefine.clas.getCanonicalName() + ":" + field.getName() + "]");
                 }
             }
