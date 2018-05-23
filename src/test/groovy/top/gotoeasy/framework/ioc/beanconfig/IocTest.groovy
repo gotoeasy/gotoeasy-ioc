@@ -20,6 +20,7 @@ import top.gotoeasy.framework.ioc.beanconfig.config24.Student24
 import top.gotoeasy.framework.ioc.beanconfig.config25.Student25
 import top.gotoeasy.framework.ioc.beanconfig.config26.Bean2601
 import top.gotoeasy.framework.ioc.beanconfig.config26.Bean2602
+import top.gotoeasy.framework.ioc.beanconfig.config26.Bean2603
 import top.gotoeasy.framework.ioc.beanconfig.config99.Book99
 import top.gotoeasy.framework.ioc.beanconfig.config99.Car99
 import top.gotoeasy.framework.ioc.beanconfig.config99.School99
@@ -567,5 +568,9 @@ class IocTest extends Specification {
         xmlBean2602.getBean1() != null
         xmlBean2602.getBean1().getCnt() == 100
         xmlBean2602.getCnt() == 100
+
+        Bean2603 bean2603 = ioc.getBean("xmlBean2603")
+        bean2603.getBean2604().getBean2605() != null
+
     }
 }

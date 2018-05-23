@@ -74,21 +74,23 @@ public class DefaultIoc extends BaseIoc {
 
         Object obj = createBean(name);
         if ( mapXml.containsKey(name) ) {
+            XmlBean xmlBean = mapXml.remove(name);
+
             // 注入
-            List<Property> propertys = mapXml.get(name).getPropertyList();
+            List<Property> propertys = xmlBean.getPropertyList();
             for ( Property property : propertys ) {
                 if ( CmnString.isNotBlank(property.getRef()) ) {
-                    CmnBean.setPropertyValue(obj, property.getName(), createBean(property.getRef())); // 属性可以有引用注入
+                    CmnBean.setPropertyValue(obj, property.getName(), getBean(property.getRef())); // 属性可以有引用注入
                 } else {
                     CmnBean.setPropertyValue(obj, property.getName(), CmnXml.getBeanValue(property.getClazz(), property.getValue()));
                 }
             }
-            mapXml.remove(name);
         } else if ( mapScan.containsKey(name) ) {
+            mapScan.remove(name);
+
             // 字段注入、方法注入
             injectByField(obj);
             injectByMethod(obj);
-            mapScan.remove(name);
         }
 
         return obj;
@@ -550,8 +552,9 @@ public class DefaultIoc extends BaseIoc {
                 }
 
                 field.setAccessible(true);
+                Object injectBean = getBean(refName);
                 try {
-                    field.set(bean, createBean(refName));
+                    field.set(bean, injectBean);
                 } catch (Exception e) {
                     throw new IocException("字段注入失败:" + field, e);
                 }
@@ -603,7 +606,7 @@ public class DefaultIoc extends BaseIoc {
                 refName = beanNameStrategy.getName(parameters[i].getType());
             }
 
-            args[i] = createBean(refName);
+            args[i] = getBean(refName);
         }
 
         return args;

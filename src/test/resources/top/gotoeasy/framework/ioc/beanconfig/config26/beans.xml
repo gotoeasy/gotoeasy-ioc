@@ -18,4 +18,14 @@
 		<property name="cnt" ref="cnt" />
 	</bean>
 
+	<bean id="xmlBean2603" class="top.gotoeasy.framework.ioc.beanconfig.config26.Bean2603">
+		<property name="bean2604" ref="xmlBean2604" />
+	</bean>
+	<bean id="xmlBean2604" class="top.gotoeasy.framework.ioc.beanconfig.config26.Bean2604">
+		<property name="bean2605" ref="xmlBean2605" />
+	</bean>
+	<bean id="xmlBean2605" class="top.gotoeasy.framework.ioc.beanconfig.config26.Bean2605">
+		<property name="bean2603" ref="xmlBean2603" />
+	</bean>
+
 </ioc:beans>
