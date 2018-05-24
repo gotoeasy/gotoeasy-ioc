@@ -454,7 +454,7 @@ public class DefaultIoc extends BaseIoc {
         for ( int i = 0; i < initargs.length; i++ ) {
             arg = args.get(i);
             if ( CmnString.isNotBlank(arg.getRef()) ) {
-                initargs[i] = createBean(arg.getRef());
+                initargs[i] = getBean(arg.getRef());
             } else {
                 initargs[i] = CmnXml.getBeanValue(arg.getClazz(), arg.getValue());
             }
@@ -492,7 +492,11 @@ public class DefaultIoc extends BaseIoc {
             }
         }
 
-        Class<?> clas = createBean(ref).getClass();
+        return getBeanClass(createBean(ref));
+    }
+
+    private Class<?> getBeanClass(Object bean) {
+        Class<?> clas = bean.getClass();
         while ( Enhance.class.isAssignableFrom(clas) ) {
             clas = clas.getSuperclass();
         }
@@ -521,7 +525,7 @@ public class DefaultIoc extends BaseIoc {
                     paramBeanName = beanNameStrategy.getName(parameters[i].getType());
                 }
 
-                beanDefine.initargs[i] = createBean(paramBeanName);
+                beanDefine.initargs[i] = getBean(paramBeanName);
             }
         }
 
@@ -559,12 +563,7 @@ public class DefaultIoc extends BaseIoc {
      */
     private void injectByField(Object bean) {
 
-        Class<?> targetClass = bean.getClass();
-        while ( Enhance.class.isAssignableFrom(targetClass) ) {
-            targetClass = targetClass.getSuperclass();
-        }
-
-        Field[] fields = targetClass.getDeclaredFields();
+        Field[] fields = getBeanClass(bean).getDeclaredFields();
         for ( Field field : fields ) {
             if ( field.isAnnotationPresent(Autowired.class) ) {
                 Autowired anno = field.getAnnotation(Autowired.class);
@@ -591,12 +590,7 @@ public class DefaultIoc extends BaseIoc {
      */
     private void injectByMethod(Object bean) {
 
-        Class<?> targetClass = bean.getClass();
-        while ( Enhance.class.isAssignableFrom(targetClass) ) {
-            targetClass = targetClass.getSuperclass();
-        }
-
-        Method[] methods = targetClass.getDeclaredMethods();
+        Method[] methods = getBeanClass(bean).getDeclaredMethods();
         for ( Method method : methods ) {
             if ( method.isAnnotationPresent(Autowired.class) ) {
                 Object[] args = getInjectMethodArgs(method);
