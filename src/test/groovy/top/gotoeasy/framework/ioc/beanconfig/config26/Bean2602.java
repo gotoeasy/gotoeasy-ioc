@@ -10,9 +10,12 @@ public class Bean2602 {
     private int      cnt;
 
     private Bean2601 bean2601;
+    @Autowired
     private Bean2601 bean;
 
-    @Autowired
+    public Bean2602() {
+    }
+
     public Bean2602(Bean2601 bean) {
         this.bean = bean;
     }
