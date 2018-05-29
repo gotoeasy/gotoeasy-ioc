@@ -424,6 +424,9 @@ public class DefaultIoc extends BaseIoc {
      * @return Bean对象
      */
     private Object initXmlBean(String name) {
+        // 引用bean名
+        List<String> refNameList = new ArrayList<>();
+
         // 取定义
         XmlBean xmlBean = mapXml.get(name);
         Constructor<?> constructor = null;
@@ -433,7 +436,7 @@ public class DefaultIoc extends BaseIoc {
         if ( xmlBean.getConstructor() != null ) {
             List<Arg> args = xmlBean.getConstructor().getArgList();
             constructor = getConstructorByArgs(name, targetClass, args); // name用于异常消息
-            initargs = getXmlBeanInitargs(args); // 参数可以有引用注入
+            initargs = getXmlBeanInitargs(args, refNameList); // 参数可以有引用注入
         }
 
         // 创建
@@ -445,16 +448,22 @@ public class DefaultIoc extends BaseIoc {
         }
         super.put(name, obj);
 
+        // 引用bean属性注入
+        for ( String nm : refNameList ) {
+            getBean(nm);
+        }
+
         return obj;
     }
 
-    private Object[] getXmlBeanInitargs(List<Arg> args) {
+    private Object[] getXmlBeanInitargs(List<Arg> args, List<String> refNameList) {
         Object[] initargs = new Object[args.size()];
         Arg arg;
         for ( int i = 0; i < initargs.length; i++ ) {
             arg = args.get(i);
             if ( CmnString.isNotBlank(arg.getRef()) ) {
-                initargs[i] = getBean(arg.getRef());
+                initargs[i] = createBean(arg.getRef());
+                refNameList.add(arg.getRef());
             } else {
                 initargs[i] = CmnXml.getBeanValue(arg.getClazz(), arg.getValue());
             }
@@ -510,6 +519,10 @@ public class DefaultIoc extends BaseIoc {
      * @return Bean对象
      */
     private Object initScanBean(String name) {
+
+        // 引用bean名
+        List<String> refNameList = new ArrayList<>();
+
         // 取定义
         BeanDefine beanDefine = mapScan.get(name);
         if ( beanDefine.constructor != null ) {
@@ -525,7 +538,8 @@ public class DefaultIoc extends BaseIoc {
                     paramBeanName = beanNameStrategy.getName(parameters[i].getType());
                 }
 
-                beanDefine.initargs[i] = getBean(paramBeanName);
+                beanDefine.initargs[i] = createBean(paramBeanName);
+                refNameList.add(paramBeanName);
             }
         }
 
@@ -534,6 +548,12 @@ public class DefaultIoc extends BaseIoc {
         obj = EnhanceBuilder.get().setSuperclass(beanDefine.clas).setConstructorArgs(beanDefine.constructor, beanDefine.initargs)
                 .matchAopList(aopList).build();
         super.put(beanDefine.name, obj);
+
+        // 引用bean属性注入
+        for ( String nm : refNameList ) {
+            getBean(nm);
+        }
+
         return obj;
     }
 
