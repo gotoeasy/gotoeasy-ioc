@@ -16,9 +16,9 @@ public class CmnAnno {
     }
 
     /**
-     * 判断注解类是否"继承"自Component
+     * 判断注解是否"继承"自Component
      * 
-     * @param annoClass 注解类
+     * @param annotation 注解
      * @return true:是/false:否
      */
     public static boolean isSubComponentAnnotation(Annotation annotation) {
@@ -45,7 +45,7 @@ public class CmnAnno {
      * 判断注解类是否"继承"自Component
      * 
      * @param clas 类
-     * @return true:是/false:否
+     * @return value值
      */
     public static String getComponentAnnotationValue(Class<?> clas) {
 
