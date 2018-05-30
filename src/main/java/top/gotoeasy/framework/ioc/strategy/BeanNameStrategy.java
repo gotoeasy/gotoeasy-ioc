@@ -1,8 +1,7 @@
 package top.gotoeasy.framework.ioc.strategy;
 
-import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.core.util.CmnString;
-import top.gotoeasy.framework.ioc.annotation.Component;
+import top.gotoeasy.framework.ioc.util.CmnAnno;
 
 /**
  * IOC容器Bean名称策略
@@ -20,15 +19,7 @@ public interface BeanNameStrategy {
      */
     public default String getName(Class<?> clas) {
 
-        String name = null;
-        if ( clas.isAnnotationPresent(Component.class) ) {
-            Component component = clas.getAnnotation(Component.class);
-            name = component.value();
-        } else if ( clas.isAnnotationPresent(Aop.class) ) {
-            Aop aop = clas.getAnnotation(Aop.class);
-            name = aop.value();
-        }
-
+        String name = CmnAnno.getComponentAnnotationValue(clas);
         if ( CmnString.isBlank(name) ) {
             return CmnString.uncapitalize(clas.getSimpleName());
         }

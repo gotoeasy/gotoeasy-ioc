@@ -1,5 +1,6 @@
 package top.gotoeasy.framework.ioc.impl;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -8,6 +9,7 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +30,7 @@ import top.gotoeasy.framework.ioc.annotation.Bean;
 import top.gotoeasy.framework.ioc.annotation.BeanConfig;
 import top.gotoeasy.framework.ioc.annotation.Component;
 import top.gotoeasy.framework.ioc.exception.IocException;
+import top.gotoeasy.framework.ioc.util.CmnAnno;
 import top.gotoeasy.framework.ioc.util.CmnXml;
 import top.gotoeasy.framework.ioc.xml.Beans.XmlBean;
 import top.gotoeasy.framework.ioc.xml.Beans.XmlBean.Constructor.Arg;
@@ -631,11 +634,12 @@ public class DefaultIoc extends BaseIoc {
     }
 
     // 取得扫描Bean定义
-    @SuppressWarnings("unchecked")
     private Map<String, BeanDefine> getBeanDefineMap(String packages) {
         Map<String, BeanDefine> map = new HashMap<>();
 
-        List<Class<?>> classlist = ScanBuilder.get().packages(packages).typeAnnotations(Aop.class, Component.class).getClasses();
+        List<Class<?>> classlist = ScanBuilder.get().packages(packages).getClasses();
+        filter(classlist); // 按注解Aop、Component过滤
+
         BeanDefine beanDefine;
         for ( Class<?> clas : classlist ) {
             beanDefine = getBeanDefine(clas);
@@ -645,6 +649,31 @@ public class DefaultIoc extends BaseIoc {
             map.put(beanDefine.name, beanDefine);
         }
         return map;
+    }
+
+    private void filter(List<Class<?>> classlist) {
+        Iterator<Class<?>> it = classlist.iterator();
+        while ( it.hasNext() ) {
+            if ( !matchAnnotation(it.next()) ) {
+                it.remove();
+            }
+        }
+    }
+
+    private boolean matchAnnotation(Class<?> clas) {
+        // 指定类注解时
+        if ( clas.isAnnotationPresent(Aop.class) || clas.isAnnotationPresent(Component.class) ) {
+            return !clas.isAnnotation(); // 非注解则true
+        }
+
+        Annotation[] annotations = clas.getAnnotations();
+        for ( Annotation anno : annotations ) {
+            if ( CmnAnno.isSubComponentAnnotation(anno) ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
