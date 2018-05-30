@@ -9,6 +9,12 @@ import java.lang.reflect.Method;
 import top.gotoeasy.framework.aop.annotation.Aop;
 import top.gotoeasy.framework.ioc.annotation.Component;
 
+/**
+ * IOC注解工具类
+ * 
+ * @since 2018/5
+ * @author 青松
+ */
 public class CmnAnno {
 
     private CmnAnno() {
