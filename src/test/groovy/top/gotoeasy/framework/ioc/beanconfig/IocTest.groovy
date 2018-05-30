@@ -27,6 +27,7 @@ import top.gotoeasy.framework.ioc.beanconfig.config99.School99
 import top.gotoeasy.framework.ioc.beanconfig.config99.Student99
 import top.gotoeasy.framework.ioc.exception.IocException
 import top.gotoeasy.framework.ioc.impl.DefaultIoc
+import top.gotoeasy.framework.ioc.util.CmnAnno
 import top.gotoeasy.framework.ioc.util.CmnIoc
 import top.gotoeasy.framework.ioc.util.CmnXml
 import top.gotoeasy.framework.ioc.xml.Beans
@@ -429,6 +430,8 @@ class IocTest extends Specification {
         constructor1.setAccessible(true)
         Constructor<?> constructor2 = CmnIoc.class.getDeclaredConstructor()
         constructor2.setAccessible(true)
+        Constructor<?> constructor3 = CmnAnno.class.getDeclaredConstructor()
+        constructor3.setAccessible(true)
 
         when:
         constructor1.newInstance()
@@ -437,6 +440,11 @@ class IocTest extends Specification {
 
         when:
         constructor2.newInstance()
+        then:
+        notThrown(Exception)
+
+        when:
+        constructor3.newInstance()
         then:
         notThrown(Exception)
     }
@@ -615,5 +623,22 @@ class IocTest extends Specification {
         Bean2603 bean2603 = ioc.getBean("xmlBean2603")
         bean2603.getBean2604().getBean2605() != null
 
+    }
+
+    @Test
+    def void "27 自定义注解有@Component也是OK的"() {
+
+        expect:
+        DefaultConfig.getInstance().set("ioc.scan", "top.gotoeasy.framework.ioc.beanconfig.config27");
+        DefaultConfig.getInstance().remove("ioc.config.file");
+        DefaultConfig.getInstance().remove("ioc.lazyload"); // 默认懒加载
+
+        DefaultIoc ioc = new DefaultIoc();
+        def bean2701 = ioc.getBean("bean2701")
+        def bean2702 = ioc.getBean("aaa")
+        def bean2703 = ioc.getBean("bean2703")
+        bean2701 != null
+        bean2702 != null
+        bean2703 != null
     }
 }
