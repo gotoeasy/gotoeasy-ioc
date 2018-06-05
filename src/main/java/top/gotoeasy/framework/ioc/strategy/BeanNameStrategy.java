@@ -1,8 +1,5 @@
 package top.gotoeasy.framework.ioc.strategy;
 
-import top.gotoeasy.framework.core.util.CmnString;
-import top.gotoeasy.framework.ioc.util.CmnAnno;
-
 /**
  * IOC容器Bean名称策略
  * 
@@ -17,14 +14,6 @@ public interface BeanNameStrategy {
      * @param clas 类名
      * @return Bean名称
      */
-    public default String getName(Class<?> clas) {
-
-        String name = CmnAnno.getComponentAnnotationValue(clas);
-        if ( CmnString.isBlank(name) ) {
-            return CmnString.uncapitalize(clas.getSimpleName());
-        }
-
-        return name;
-    }
+    public String getName(Class<?> clas);
 
 }

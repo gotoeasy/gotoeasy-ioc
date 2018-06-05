@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import top.gotoeasy.framework.core.log.Log;
 import top.gotoeasy.framework.core.log.LoggerFactory;
+import top.gotoeasy.framework.core.util.CmnSpi;
 import top.gotoeasy.framework.ioc.Ioc;
 import top.gotoeasy.framework.ioc.exception.IocException;
 import top.gotoeasy.framework.ioc.strategy.BeanNameStrategy;
@@ -22,7 +23,7 @@ public class BaseIoc implements Ioc {
     /** Bean容器 */
     protected Map<String, Object> mapIoc           = new ConcurrentHashMap<>();
     /** Bean名称策略 */
-    protected BeanNameStrategy    beanNameStrategy = new BeanNameStrategy() {};
+    protected BeanNameStrategy    beanNameStrategy = CmnSpi.loadSpiInstance(BeanNameStrategy.class);
 
     /**
      * 存放Bean对象
