@@ -23,7 +23,7 @@ public class BaseIoc implements Ioc {
     /** Bean容器 */
     protected Map<String, Object> mapIoc           = new ConcurrentHashMap<>();
     /** Bean名称策略 */
-    protected BeanNameStrategy    beanNameStrategy = CmnSpi.loadSpiInstance(BeanNameStrategy.class);
+    protected BeanNameStrategy    beanNameStrategy = CmnSpi.loadInstance(BeanNameStrategy.class);
 
     /**
      * 存放Bean对象
