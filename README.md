@@ -2,7 +2,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/cf34c42bcb7344cf98e42195a1e530a1)](https://www.codacy.com/app/gotoeasy/gotoeasy-ioc?utm_source=github.com&utm_medium=referral&utm_content=gotoeasy/gotoeasy-ioc&utm_campaign=Badge_Coverage)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-ioc/badge.svg)](https://maven-badges.herokuapp.com/maven-central/top.gotoeasy/gotoeasy-ioc)
 [![Javadocs](https://www.javadoc.io/badge/top.gotoeasy/gotoeasy-ioc.svg)](https://www.javadoc.io/doc/top.gotoeasy/gotoeasy-ioc)
-
+[![License](https://img.shields.io/badge/License-apache2.0-brightgreen.svg)](https://github.com/gotoeasy/gotoeasy-ioc/blob/master/LICENSE)
 
 # `gotoeasy-ioc`
 基于gotoeasy-aop的IOC实现
@@ -42,19 +42,3 @@ compile group: 'top.gotoeasy', name: 'gotoeasy-ioc', version: 'x.y.z'
 - TODO
 - TODO
 - TODO
-
-## LICENSE
-
-    Copyright (c) 2018 ZhangMing (www.gotoeasy.top)
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
